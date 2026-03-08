@@ -2,21 +2,30 @@ import XCTest
 @testable import Quotio
 
 final class AvailableModelTests: XCTestCase {
-    func testLegacyModelNamesNormalizeToSupportedReplacements() {
-        XCTAssertEqual(AvailableModel.normalizedModelName("gpt-5.4"), "gpt-5")
-        XCTAssertEqual(AvailableModel.normalizedModelName("gpt-5.4-codex"), "gpt-5-codex")
-        XCTAssertEqual(AvailableModel.normalizedModelName("gpt-5.4-codex-mini"), "gpt-5-codex-mini")
-        XCTAssertEqual(AvailableModel.normalizedModelName("gpt-5"), "gpt-5")
+    func testBuiltInModelListIncludesGPT54Variants() {
+        let openAIModelNames = AvailableModel.allModels
+            .filter { $0.provider == "openai" }
+            .map(\.name)
+
+        XCTAssertTrue(openAIModelNames.contains("gpt-5.4"))
+        XCTAssertTrue(openAIModelNames.contains("gpt-5.4-codex"))
+        XCTAssertTrue(openAIModelNames.contains("gpt-5.4-codex-mini"))
     }
 
-    func testSanitizedModelsDeduplicatesLegacyAliases() {
-        let sanitizedModels = AvailableModel.sanitizedModels([
-            AvailableModel(id: "gpt-5.4", name: "gpt-5.4", provider: "openai", isDefault: false),
-            AvailableModel(id: "gpt-5", name: "gpt-5", provider: "openai", isDefault: false),
-            AvailableModel(id: "gpt-5.4-codex", name: "gpt-5.4-codex", provider: "openai", isDefault: false),
-            AvailableModel(id: "gpt-5-codex", name: "gpt-5-codex", provider: "openai", isDefault: false)
-        ])
+    func testSavedModelSlotsPreserveGPT54Selections() {
+        let configuration = AgentConfiguration(
+            agent: .codexCLI,
+            proxyURL: "http://localhost:8000",
+            apiKey: "test-key",
+            savedModelSlots: [
+                ModelSlot.opus: "gpt-5.4",
+                ModelSlot.sonnet: "gpt-5.4-codex",
+                ModelSlot.haiku: "gpt-5.4-codex-mini"
+            ]
+        )
 
-        XCTAssertEqual(sanitizedModels.map(\.id), ["gpt-5", "gpt-5-codex"])
+        XCTAssertEqual(configuration.modelSlots[ModelSlot.opus], "gpt-5.4")
+        XCTAssertEqual(configuration.modelSlots[ModelSlot.sonnet], "gpt-5.4-codex")
+        XCTAssertEqual(configuration.modelSlots[ModelSlot.haiku], "gpt-5.4-codex-mini")
     }
 }
