@@ -10,11 +10,22 @@
 		782F8F9C2EFD797D00CE18C5 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 78D386B12EFBF30500C40FB6 /* Sparkle */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		78E100042F10000100C40FB6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 78D3868C2EFBF30400C40FB6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 78D386932EFBF30400C40FB6;
+			remoteInfo = Quotio;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		78D386942EFBF30400C40FB6 /* Quotio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Quotio.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		78D386B22EFBF30500C40FB6 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		78D386B32EFBF30500C40FB6 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		78D386B42EFBF30500C40FB6 /* Local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig.example; sourceTree = "<group>"; };
+		78E100012F10000100C40FB6 /* QuotioTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QuotioTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -36,6 +47,11 @@
 			path = Quotio;
 			sourceTree = "<group>";
 		};
+		78E100022F10000100C40FB6 /* QuotioTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = QuotioTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,6 +71,7 @@
 			children = (
 				78D386B52EFBF30500C40FB6 /* Config */,
 				78D386962EFBF30400C40FB6 /* Quotio */,
+				78E100022F10000100C40FB6 /* QuotioTests */,
 				78D386952EFBF30400C40FB6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -63,6 +80,7 @@
 			isa = PBXGroup;
 			children = (
 				78D386942EFBF30400C40FB6 /* Quotio.app */,
+				78E100012F10000100C40FB6 /* QuotioTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -103,6 +121,27 @@
 			productReference = 78D386942EFBF30400C40FB6 /* Quotio.app */;
 			productType = "com.apple.product-type.application";
 		};
+		78E100032F10000100C40FB6 /* QuotioTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 78E100072F10000100C40FB6 /* Build configuration list for PBXNativeTarget "QuotioTests" */;
+			buildPhases = (
+				78E100052F10000100C40FB6 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				78E100062F10000100C40FB6 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				78E100022F10000100C40FB6 /* QuotioTests */,
+			);
+			name = QuotioTests;
+			packageProductDependencies = (
+			);
+			productName = QuotioTests;
+			productReference = 78E100012F10000100C40FB6 /* QuotioTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -114,6 +153,9 @@
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					78D386932EFBF30400C40FB6 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					78E100032F10000100C40FB6 = {
 						CreatedOnToolsVersion = 26.2;
 					};
 				};
@@ -138,6 +180,7 @@
 			projectRoot = "";
 			targets = (
 				78D386932EFBF30400C40FB6 /* Quotio */,
+				78E100032F10000100C40FB6 /* QuotioTests */,
 			);
 		};
 /* End PBXProject section */
@@ -160,7 +203,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		78E100052F10000100C40FB6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		78E100062F10000100C40FB6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 78D386932EFBF30400C40FB6 /* Quotio */;
+			targetProxy = 78E100042F10000100C40FB6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		78D3869D2EFBF30500C40FB6 /* Debug */ = {
@@ -375,6 +433,62 @@
 			};
 			name = Release;
 		};
+		78E100082F10000100C40FB6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APP_INTENTS_METADATA_BUILD_ENABLED = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 49;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.quotio.desktop.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_APP_INTENTS_METADATA = NO;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Quotio.app/Contents/MacOS/Quotio";
+				XROS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Debug;
+		};
+		78E100092F10000100C40FB6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APP_INTENTS_METADATA_BUILD_ENABLED = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 49;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.quotio.desktop.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_APP_INTENTS_METADATA = NO;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Quotio.app/Contents/MacOS/Quotio";
+				XROS_DEPLOYMENT_TARGET = 26.2;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -392,6 +506,15 @@
 			buildConfigurations = (
 				78D386A02EFBF30500C40FB6 /* Debug */,
 				78D386A12EFBF30500C40FB6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		78E100072F10000100C40FB6 /* Build configuration list for PBXNativeTarget "QuotioTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				78E100082F10000100C40FB6 /* Debug */,
+				78E100092F10000100C40FB6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

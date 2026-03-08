@@ -9,17 +9,44 @@
 import AppKit
 import Foundation
 
+private final class ImageCacheController: @unchecked Sendable {
+    let cache: NSCache<NSString, NSImage>
+
+    init(cache: NSCache<NSString, NSImage>) {
+        self.cache = cache
+    }
+
+    func clear() {
+        cache.removeAllObjects()
+    }
+
+    func setCountLimit(_ limit: Int) {
+        cache.countLimit = limit
+    }
+}
+
 /// Thread-safe image cache with automatic memory pressure eviction
-final class ImageCacheService: @unchecked Sendable {
+final class ImageCacheService: NSObject, @unchecked Sendable {
     static let shared = ImageCacheService()
 
-    private let cache = NSCache<NSString, NSImage>()
-    private let queue = DispatchQueue(label: "dev.quotio.desktop.imagecache", attributes: .concurrent)
+    private let cache: NSCache<NSString, NSImage>
+    private let cacheController: ImageCacheController
+    private let notificationCenter: NotificationCenter
+    private let imageLoader: (String) -> NSImage?
 
     /// Retained memory pressure source to prevent deallocation
     private var memoryPressureSource: DispatchSourceMemoryPressure?
 
-    private init() {
+    init(
+        cache: NSCache<NSString, NSImage> = NSCache<NSString, NSImage>(),
+        notificationCenter: NotificationCenter = .default,
+        imageLoader: @escaping (String) -> NSImage? = { NSImage(named: $0) }
+    ) {
+        self.cache = cache
+        self.cacheController = ImageCacheController(cache: cache)
+        self.notificationCenter = notificationCenter
+        self.imageLoader = imageLoader
+        super.init()
         cache.countLimit = 50
         cache.totalCostLimit = 10 * 1024 * 1024
         setupMemoryPressureHandler()
@@ -46,7 +73,7 @@ final class ImageCacheService: @unchecked Sendable {
         }
 
         // Load from asset catalog
-        guard let original = NSImage(named: name) else {
+        guard let original = imageLoader(name) else {
             return nil
         }
 
@@ -68,6 +95,10 @@ final class ImageCacheService: @unchecked Sendable {
     /// Clear all cached images (called on memory pressure)
     func clearCache() {
         cache.removeAllObjects()
+    }
+
+    var cacheCountLimit: Int {
+        cache.countLimit
     }
 
     // MARK: - Private Helpers
@@ -104,28 +135,33 @@ final class ImageCacheService: @unchecked Sendable {
 
     private func setupMemoryPressureHandler() {
         let source = DispatchSource.makeMemoryPressureSource(eventMask: [.warning, .critical], queue: .main)
-        // Capture cache directly since NSCache is thread-safe
-        let cache = self.cache
+        let cacheController = self.cacheController
         source.setEventHandler {
-            cache.removeAllObjects()
+            cacheController.clear()
         }
         memoryPressureSource = source
         source.resume()
 
-        NotificationCenter.default.addObserver(
-            forName: NSApplication.didResignActiveNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            self?.cache.countLimit = 20
-        }
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(handleDidResignActive),
+            name: NSApplication.didResignActiveNotification,
+            object: nil
+        )
 
-        NotificationCenter.default.addObserver(
-            forName: NSApplication.didBecomeActiveNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            self?.cache.countLimit = 50
-        }
+        notificationCenter.addObserver(
+            self,
+            selector: #selector(handleDidBecomeActive),
+            name: NSApplication.didBecomeActiveNotification,
+            object: nil
+        )
+    }
+
+    @objc private func handleDidResignActive() {
+        cacheController.setCountLimit(20)
+    }
+
+    @objc private func handleDidBecomeActive() {
+        cacheController.setCountLimit(50)
     }
 }

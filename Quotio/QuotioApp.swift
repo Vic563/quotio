@@ -28,6 +28,7 @@ final class AppBootstrap {
     private let appearanceManager = AppearanceManager.shared
     private let statusBarManager = StatusBarManager.shared
     private let menuBarSettings = MenuBarSettingsManager.shared
+    private let isRunningUnitTests = RuntimeEnvironment.isRunningUnitTests
 
     private init() {}
 
@@ -36,6 +37,8 @@ final class AppBootstrap {
     func initializeIfNeeded() async {
         guard !hasInitialized else { return }
         hasInitialized = true
+
+        guard !isRunningUnitTests else { return }
 
         appearanceManager.applyAppearance()
 
@@ -172,6 +175,7 @@ final class AppBootstrap {
 @main
 struct QuotioApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    private let isRunningUnitTests = RuntimeEnvironment.isRunningUnitTests
     // Use shared bootstrap instance for viewModel
     private var bootstrap: AppBootstrap { AppBootstrap.shared }
     @State private var logsViewModel = LogsViewModel()
@@ -185,85 +189,90 @@ struct QuotioApp: App {
 
     private var viewModel: QuotaViewModel { bootstrap.viewModel }
 
-
     var body: some Scene {
         Window("Quotio", id: "main") {
-            ContentView()
-                .id(languageManager.currentLanguage) // Force re-render on language change
-                .environment(viewModel)
-                .environment(logsViewModel)
-                .environment(\.locale, languageManager.locale)
-                .task {
-                    // Initialize via bootstrap (idempotent - safe to call multiple times)
-                    // This handles the case where window opens before AppDelegate finishes
-                    await bootstrap.initializeIfNeeded()
+            if isRunningUnitTests {
+                UnitTestHostView()
+            } else {
+                ContentView()
+                    .id(languageManager.currentLanguage) // Force re-render on language change
+                    .environment(viewModel)
+                    .environment(logsViewModel)
+                    .environment(\.locale, languageManager.locale)
+                    .task {
+                        // Initialize via bootstrap (idempotent - safe to call multiple times)
+                        // This handles the case where window opens before AppDelegate finishes
+                        await bootstrap.initializeIfNeeded()
 
-                    // Show onboarding if needed
-                    if bootstrap.needsOnboarding {
-                        showOnboarding = true
-                    }
-                }
-                .onChange(of: viewModel.proxyManager.proxyStatus.running) {
-                    bootstrap.updateStatusBar()
-                }
-                .onChange(of: viewModel.isLoadingQuotas) {
-                    bootstrap.updateStatusBar()
-                    // Rebuild menu when loading state changes so loader updates
-                    statusBarManager.rebuildMenuInPlace()
-                }
-                .onChange(of: languageManager.currentLanguage) { _, _ in
-                    // Rebuild menu bar when language changes
-                    statusBarManager.rebuildMenuInPlace()
-                }
-                .onChange(of: menuBarSettings.showQuotaInMenuBar) {
-                    bootstrap.updateStatusBar()
-                }
-                .onChange(of: menuBarSettings.showMenuBarIcon) {
-                    bootstrap.updateStatusBar()
-                }
-                .onChange(of: menuBarSettings.selectedItems) {
-                    bootstrap.updateStatusBar()
-                }
-                .onChange(of: menuBarSettings.colorMode) {
-                    bootstrap.updateStatusBar()
-                }
-                .onChange(of: menuBarSettings.totalUsageMode) {
-                    bootstrap.updateStatusBar()
-                    statusBarManager.rebuildMenuInPlace()
-                }
-                .onChange(of: menuBarSettings.modelAggregationMode) {
-                    bootstrap.updateStatusBar()
-                    statusBarManager.rebuildMenuInPlace()
-                }
-                .onChange(of: modeManager.currentMode) {
-                    bootstrap.updateStatusBar()
-                }
-                .onChange(of: viewModel.providerQuotas.count) {
-                    bootstrap.updateStatusBar()
-                    statusBarManager.rebuildMenuInPlace()
-                }
-                .onChange(of: viewModel.directAuthFiles.count) {
-                    bootstrap.updateStatusBar()
-                    statusBarManager.rebuildMenuInPlace()
-                }
-                .sheet(isPresented: $showOnboarding) {
-                    OnboardingFlow {
-                        Task {
-                            await bootstrap.completeOnboarding()
+                        // Show onboarding if needed
+                        if bootstrap.needsOnboarding {
+                            showOnboarding = true
                         }
                     }
-                }
+                    .onChange(of: viewModel.proxyManager.proxyStatus.running) {
+                        bootstrap.updateStatusBar()
+                    }
+                    .onChange(of: viewModel.isLoadingQuotas) {
+                        bootstrap.updateStatusBar()
+                        // Rebuild menu when loading state changes so loader updates
+                        statusBarManager.rebuildMenuInPlace()
+                    }
+                    .onChange(of: languageManager.currentLanguage) { _, _ in
+                        // Rebuild menu bar when language changes
+                        statusBarManager.rebuildMenuInPlace()
+                    }
+                    .onChange(of: menuBarSettings.showQuotaInMenuBar) {
+                        bootstrap.updateStatusBar()
+                    }
+                    .onChange(of: menuBarSettings.showMenuBarIcon) {
+                        bootstrap.updateStatusBar()
+                    }
+                    .onChange(of: menuBarSettings.selectedItems) {
+                        bootstrap.updateStatusBar()
+                    }
+                    .onChange(of: menuBarSettings.colorMode) {
+                        bootstrap.updateStatusBar()
+                    }
+                    .onChange(of: menuBarSettings.totalUsageMode) {
+                        bootstrap.updateStatusBar()
+                        statusBarManager.rebuildMenuInPlace()
+                    }
+                    .onChange(of: menuBarSettings.modelAggregationMode) {
+                        bootstrap.updateStatusBar()
+                        statusBarManager.rebuildMenuInPlace()
+                    }
+                    .onChange(of: modeManager.currentMode) {
+                        bootstrap.updateStatusBar()
+                    }
+                    .onChange(of: viewModel.providerQuotas.count) {
+                        bootstrap.updateStatusBar()
+                        statusBarManager.rebuildMenuInPlace()
+                    }
+                    .onChange(of: viewModel.directAuthFiles.count) {
+                        bootstrap.updateStatusBar()
+                        statusBarManager.rebuildMenuInPlace()
+                    }
+                    .sheet(isPresented: $showOnboarding) {
+                        OnboardingFlow {
+                            Task {
+                                await bootstrap.completeOnboarding()
+                            }
+                        }
+                    }
+            }
         }
-        .defaultSize(width: 1000, height: 700)
+        .defaultSize(width: isRunningUnitTests ? 1 : 1000, height: isRunningUnitTests ? 1 : 700)
         .commands {
             CommandGroup(replacing: .newItem) { }
 
             #if canImport(Sparkle)
-            CommandGroup(after: .appInfo) {
-                Button("Check for Updates...") {
-                    UpdaterService.shared.checkForUpdates()
+            if !isRunningUnitTests {
+                CommandGroup(after: .appInfo) {
+                    Button("Check for Updates...") {
+                        UpdaterService.shared.checkForUpdates()
+                    }
+                    .disabled(!UpdaterService.shared.canCheckForUpdates)
                 }
-                .disabled(!UpdaterService.shared.canCheckForUpdates)
             }
             #endif
         }
@@ -274,8 +283,11 @@ struct QuotioApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private nonisolated(unsafe) var windowWillCloseObserver: NSObjectProtocol?
     private nonisolated(unsafe) var windowDidBecomeKeyObserver: NSObjectProtocol?
+    private let isRunningUnitTests = RuntimeEnvironment.isRunningUnitTests
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        guard !isRunningUnitTests else { return }
+
         // Move orphan cleanup off main thread to avoid blocking app launch
         DispatchQueue.global(qos: .utility).async {
             TunnelManager.cleanupOrphans()
@@ -352,6 +364,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        guard !isRunningUnitTests else { return }
+
         // Stop background polling
         AtomFeedUpdateService.shared.stopPolling()
 
@@ -392,6 +406,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let observer = windowDidBecomeKeyObserver {
             NotificationCenter.default.removeObserver(observer)
         }
+    }
+}
+
+private struct UnitTestHostView: View {
+    var body: some View {
+        EmptyView()
     }
 }
 

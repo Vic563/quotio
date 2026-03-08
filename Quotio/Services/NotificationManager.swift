@@ -27,6 +27,7 @@ final class NotificationManager {
     
     private(set) var isAuthorized = false
     private var sentNotifications: Set<String> = []
+    private let isRunningUnitTests = RuntimeEnvironment.isRunningUnitTests
     
     // Settings stored in UserDefaults
     var notificationsEnabled: Bool {
@@ -67,6 +68,8 @@ final class NotificationManager {
         if UserDefaults.standard.object(forKey: "notificationsEnabled") == nil {
             UserDefaults.standard.set(true, forKey: "notificationsEnabled")
         }
+
+        guard !isRunningUnitTests else { return }
         
         Task {
             await requestAuthorization()
@@ -76,6 +79,11 @@ final class NotificationManager {
     // MARK: - Authorization
     
     func requestAuthorization() async {
+        guard !isRunningUnitTests else {
+            isAuthorized = false
+            return
+        }
+
         let center = UNUserNotificationCenter.current()
         
         do {
@@ -87,6 +95,13 @@ final class NotificationManager {
     }
     
     nonisolated func checkAuthorizationStatus() async {
+        guard !RuntimeEnvironment.isRunningUnitTests else {
+            await MainActor.run {
+                self.isAuthorized = false
+            }
+            return
+        }
+
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
         let authorized = settings.authorizationStatus == .authorized
