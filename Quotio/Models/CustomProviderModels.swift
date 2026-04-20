@@ -120,6 +120,15 @@ enum CustomProviderType: String, CaseIterable, Codable, Identifiable, Sendable {
             return nil
         }
     }
+
+    var defaultPrefix: String? {
+        switch self {
+        case .glmCompatibility:
+            return "glm"
+        case .openaiCompatibility, .claudeCompatibility, .geminiCompatibility, .codexCompatibility:
+            return nil
+        }
+    }
     
     /// Whether this provider type supports model alias mapping
     var supportsModelMapping: Bool {
@@ -254,7 +263,7 @@ struct CustomProvider: Codable, Identifiable, Hashable, Sendable {
         self.name = name
         self.type = type
         self.baseURL = baseURL.isEmpty ? (type.defaultBaseURL ?? "") : baseURL
-        self.prefix = prefix
+        self.prefix = Self.normalizedPrefix(prefix, for: type)
         self.apiKeys = apiKeys
         self.models = models
         self.headers = headers
@@ -262,6 +271,14 @@ struct CustomProvider: Codable, Identifiable, Hashable, Sendable {
         self.isEnabled = isEnabled
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+    }
+
+    static func normalizedPrefix(_ prefix: String?, for type: CustomProviderType) -> String? {
+        let trimmed = prefix?.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let trimmed, !trimmed.isEmpty {
+            return trimmed
+        }
+        return type.defaultPrefix
     }
 
     enum CodingKeys: String, CodingKey {
@@ -347,6 +364,20 @@ struct CustomProvider: Codable, Identifiable, Hashable, Sendable {
 // MARK: - YAML Generation Extensions
 
 extension CustomProvider {
+    private var routingModelMappings: [ModelMapping] {
+        if !models.isEmpty {
+            return models
+        }
+
+        if type == .glmCompatibility {
+            return AvailableModel.glmModels.map { model in
+                ModelMapping(name: model.name, alias: model.name)
+            }
+        }
+
+        return []
+    }
+
     /// Generate YAML config block for this provider
     func toYAMLBlock() -> String {
         switch type {
@@ -381,9 +412,10 @@ extension CustomProvider {
             }
         }
         
-        if !models.isEmpty {
+        let routingModels = routingModelMappings
+        if !routingModels.isEmpty {
             yaml += "    models:\n"
-            for model in models {
+            for model in routingModels {
                 yaml += "      - name: \"\(model.name)\"\n"
                 yaml += "        alias: \"\(model.effectiveAlias)\"\n"
             }
@@ -467,23 +499,9 @@ extension CustomProvider {
     }
 
     private func generateGlmCompatibilityYAML() -> String {
-        var yaml = ""
-        for key in apiKeys {
-            yaml += "  - api-key: \"\(key.apiKey)\"\n"
-
-            if !baseURL.isEmpty && baseURL != type.defaultBaseURL {
-                yaml += "    base-url: \"\(baseURL)\"\n"
-            }
-
-            if let prefix = prefix, !prefix.isEmpty {
-                yaml += "    prefix: \"\(prefix)\"\n"
-            }
-
-            if let proxyURL = key.proxyURL, !proxyURL.isEmpty {
-                yaml += "    proxy-url: \"\(proxyURL)\"\n"
-            }
-        }
-        return yaml
+        // Current CLIProxyAPI builds route GLM/Z.AI successfully when expressed
+        // as OpenAI-compatible providers with explicit model mappings.
+        return generateOpenAICompatibilityYAML()
     }
     
     private var escapedName: String {
@@ -502,7 +520,8 @@ extension Array where Element == CustomProvider {
         let grouped = Dictionary(grouping: self.filter(\.isEnabled), by: \.type)
         
         // OpenAI Compatibility
-        if let openaiProviders = grouped[.openaiCompatibility], !openaiProviders.isEmpty {
+        let openaiProviders = (grouped[.openaiCompatibility] ?? []) + (grouped[.glmCompatibility] ?? [])
+        if !openaiProviders.isEmpty {
             yaml += "\nopenai-compatibility:\n"
             for provider in openaiProviders {
                 yaml += provider.toYAMLBlock()
@@ -532,15 +551,6 @@ extension Array where Element == CustomProvider {
                 yaml += provider.toYAMLBlock()
             }
         }
-
-        // GLM Compatibility
-        if let glmProviders = grouped[.glmCompatibility], !glmProviders.isEmpty {
-            yaml += "\nglm-api-key:\n"
-            for provider in glmProviders {
-                yaml += provider.toYAMLBlock()
-            }
-        }
-
         return yaml
     }
 }

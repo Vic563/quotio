@@ -27,13 +27,9 @@ final class CustomProviderService {
     private init() {
         loadProviders()
     }
-    
-    // MARK: - CRUD Operations
-    
-    /// Add a new custom provider
-    func addProvider(_ provider: CustomProvider) {
-        var newProvider = provider
-        newProvider = CustomProvider(
+
+    private func normalizedProvider(_ provider: CustomProvider, createdAt: Date? = nil) -> CustomProvider {
+        CustomProvider(
             id: provider.id,
             name: provider.name,
             type: provider.type,
@@ -44,6 +40,27 @@ final class CustomProviderService {
             headers: provider.headers,
             limitToSelectedModels: provider.limitToSelectedModels,
             isEnabled: provider.isEnabled,
+            createdAt: createdAt ?? provider.createdAt,
+            updatedAt: provider.updatedAt
+        )
+    }
+    
+    // MARK: - CRUD Operations
+    
+    /// Add a new custom provider
+    func addProvider(_ provider: CustomProvider) {
+        let canonicalProvider = normalizedProvider(provider)
+        let newProvider = CustomProvider(
+            id: provider.id,
+            name: canonicalProvider.name,
+            type: canonicalProvider.type,
+            baseURL: canonicalProvider.baseURL,
+            prefix: canonicalProvider.prefix,
+            apiKeys: canonicalProvider.apiKeys,
+            models: canonicalProvider.models,
+            headers: canonicalProvider.headers,
+            limitToSelectedModels: canonicalProvider.limitToSelectedModels,
+            isEnabled: canonicalProvider.isEnabled,
             createdAt: Date(),
             updatedAt: Date()
         )
@@ -58,18 +75,18 @@ final class CustomProviderService {
             return
         }
         
-        var updatedProvider = provider
-        updatedProvider = CustomProvider(
+        let canonicalProvider = normalizedProvider(provider, createdAt: providers[index].createdAt)
+        let updatedProvider = CustomProvider(
             id: provider.id,
-            name: provider.name,
-            type: provider.type,
-            baseURL: provider.baseURL,
-            prefix: provider.prefix,
-            apiKeys: provider.apiKeys,
-            models: provider.models,
-            headers: provider.headers,
-            limitToSelectedModels: provider.limitToSelectedModels,
-            isEnabled: provider.isEnabled,
+            name: canonicalProvider.name,
+            type: canonicalProvider.type,
+            baseURL: canonicalProvider.baseURL,
+            prefix: canonicalProvider.prefix,
+            apiKeys: canonicalProvider.apiKeys,
+            models: canonicalProvider.models,
+            headers: canonicalProvider.headers,
+            limitToSelectedModels: canonicalProvider.limitToSelectedModels,
+            isEnabled: canonicalProvider.isEnabled,
             createdAt: providers[index].createdAt,
             updatedAt: Date()
         )
@@ -135,7 +152,12 @@ final class CustomProviderService {
         do {
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
-            providers = try decoder.decode([CustomProvider].self, from: data)
+            let decoded = try decoder.decode([CustomProvider].self, from: data)
+            let normalized = decoded.map { normalizedProvider($0) }
+            providers = normalized
+            if normalized != decoded {
+                saveProviders()
+            }
         } catch {
             lastError = "Failed to load providers: \(error.localizedDescription)"
             providers = []
