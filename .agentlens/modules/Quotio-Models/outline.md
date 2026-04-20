@@ -18,26 +18,27 @@ Symbol maps for 4 large files in this module.
 | 631 | fn | success | (internal) |
 | 657 | fn | failure | (internal) |
 
-## Quotio/Models/CustomProviderModels.swift (546 lines)
+## Quotio/Models/CustomProviderModels.swift (556 lines)
 
 | Line | Kind | Name | Visibility |
 | ---- | ---- | ---- | ---------- |
 | 14 | enum | CustomProviderType | (internal) |
-| 148 | struct | CustomAPIKeyEntry | (internal) |
-| 179 | struct | ModelMapping | (internal) |
-| 206 | struct | CustomHeader | (internal) |
-| 225 | struct | CustomProvider | (internal) |
-| 277 | method | init | (internal) |
-| 293 | fn | encode | (internal) |
-| 311 | fn | validate | (internal) |
-| 349 | mod | extension CustomProvider | (internal) |
-| 351 | fn | toYAMLBlock | (internal) |
-| 365 | fn | generateOpenAICompatibilityYAML | (private) |
-| 394 | fn | generateClaudeCompatibilityYAML | (private) |
-| 423 | fn | generateGeminiCompatibilityYAML | (private) |
-| 451 | fn | generateCodexCompatibilityYAML | (private) |
-| 468 | fn | generateGlmCompatibilityYAML | (private) |
-| 498 | fn | toYAMLSections | (internal) |
+| 157 | struct | CustomAPIKeyEntry | (internal) |
+| 188 | struct | ModelMapping | (internal) |
+| 215 | struct | CustomHeader | (internal) |
+| 234 | struct | CustomProvider | (internal) |
+| 275 | fn | normalizedPrefix | (internal) |
+| 294 | method | init | (internal) |
+| 310 | fn | encode | (internal) |
+| 328 | fn | validate | (internal) |
+| 366 | mod | extension CustomProvider | (internal) |
+| 382 | fn | toYAMLBlock | (internal) |
+| 396 | fn | generateOpenAICompatibilityYAML | (private) |
+| 426 | fn | generateClaudeCompatibilityYAML | (private) |
+| 455 | fn | generateGeminiCompatibilityYAML | (private) |
+| 483 | fn | generateCodexCompatibilityYAML | (private) |
+| 500 | fn | generateGlmCompatibilityYAML | (private) |
+| 516 | fn | toYAMLSections | (internal) |
 
 ## Quotio/Models/MenuBarSettings.swift (632 lines)
 
