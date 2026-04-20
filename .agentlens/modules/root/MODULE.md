@@ -9,7 +9,7 @@
 | File | Lines | Large |
 | ---- | ----- | ----- |
 | `Quotio/QuotioApp.swift` | 818 | 📊 |
-| `Quotio/Services/AgentConfigurationService.swift` | 2144 | 📊 |
+| `Quotio/Services/AgentConfigurationService.swift` | 2148 | 📊 |
 | `Quotio/Services/AgentDetectionService.swift` | 293 |  |
 | `Quotio/Services/AtomFeedUpdateService.swift` | 533 | 📊 |
 | `Quotio/Services/CLIExecutor.swift` | 430 |  |

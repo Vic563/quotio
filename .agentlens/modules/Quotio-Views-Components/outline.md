@@ -4,25 +4,25 @@
 
 Symbol maps for 2 large files in this module.
 
-## Quotio/Views/Components/AgentConfigSheet.swift (1185 lines)
+## Quotio/Views/Components/AgentConfigSheet.swift (1203 lines)
 
 | Line | Kind | Name | Visibility |
 | ---- | ---- | ---- | ---------- |
 | 8 | struct | AgentConfigSheet | (internal) |
 | 71 | fn | generatePreview | (private) |
-| 587 | fn | copyPreviewToClipboard | (private) |
-| 679 | fn | automaticModeResult | (private) |
-| 708 | fn | manualModeResult | (private) |
-| 814 | struct | ModeButton | (private) |
-| 844 | struct | SetupModeButton | (private) |
-| 874 | struct | BackupButton | (private) |
-| 902 | struct | StorageOptionButton | (private) |
-| 940 | struct | InfoRow | (private) |
-| 963 | struct | ModelSlotRow | (private) |
-| 1019 | struct | SingleModelRow | (private) |
-| 1076 | struct | TestResultView | (private) |
-| 1103 | struct | FilePathRow | (private) |
-| 1129 | struct | RawConfigView | (private) |
+| 605 | fn | copyPreviewToClipboard | (private) |
+| 697 | fn | automaticModeResult | (private) |
+| 726 | fn | manualModeResult | (private) |
+| 832 | struct | ModeButton | (private) |
+| 862 | struct | SetupModeButton | (private) |
+| 892 | struct | BackupButton | (private) |
+| 920 | struct | StorageOptionButton | (private) |
+| 958 | struct | InfoRow | (private) |
+| 981 | struct | ModelSlotRow | (private) |
+| 1037 | struct | SingleModelRow | (private) |
+| 1094 | struct | TestResultView | (private) |
+| 1121 | struct | FilePathRow | (private) |
+| 1147 | struct | RawConfigView | (private) |
 
 ## Quotio/Views/Components/CustomProviderSheet.swift (999 lines)
 

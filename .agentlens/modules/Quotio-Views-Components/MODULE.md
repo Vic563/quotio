@@ -12,11 +12,11 @@
 | `Quotio/Views/Components/AccountsEmptyState.swift` | 80 |  |
 | `Quotio/Views/Components/AddProviderPopover.swift` | 158 |  |
 | `Quotio/Views/Components/AgentCard.swift` | 147 |  |
-| `Quotio/Views/Components/AgentConfigSheet.swift` | 1185 | 📊 |
+| `Quotio/Views/Components/AgentConfigSheet.swift` | 1203 | 📊 |
 | `Quotio/Views/Components/CurrentModeBadge.swift` | 122 |  |
 | `Quotio/Views/Components/CustomProviderSheet.swift` | 999 | 📊 |
 | `Quotio/Views/Components/ExperimentalBadge.swift` | 40 |  |
-| `Quotio/Views/Components/FallbackSheets.swift` | 362 |  |
+| `Quotio/Views/Components/FallbackSheets.swift` | 365 |  |
 | `Quotio/Views/Components/GLMAPIKeySheet.swift` | 233 |  |
 | `Quotio/Views/Components/IDEScanSheet.swift` | 320 |  |
 | `Quotio/Views/Components/ProviderAccountsGroup.swift` | 227 |  |
