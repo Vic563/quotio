@@ -4,19 +4,19 @@
 
 Symbol maps for 4 large files in this module.
 
-## Quotio/Models/AgentModels.swift (715 lines)
+## Quotio/Models/AgentModels.swift (727 lines)
 
 | Line | Kind | Name | Visibility |
 | ---- | ---- | ---- | ---------- |
-| 317 | fn | normalizeProvider | (internal) |
-| 333 | fn | inferredProvider | (internal) |
-| 503 | fn | isSupported | (internal) |
-| 510 | fn | extractFromModelName | (internal) |
-| 526 | fn | encoded | (internal) |
-| 544 | method | init | (internal) |
-| 563 | method | init | (internal) |
-| 631 | fn | success | (internal) |
-| 657 | fn | failure | (internal) |
+| 321 | fn | normalizeProvider | (internal) |
+| 340 | fn | inferredProvider | (internal) |
+| 515 | fn | isSupported | (internal) |
+| 522 | fn | extractFromModelName | (internal) |
+| 538 | fn | encoded | (internal) |
+| 556 | method | init | (internal) |
+| 575 | method | init | (internal) |
+| 643 | fn | success | (internal) |
+| 669 | fn | failure | (internal) |
 
 ## Quotio/Models/CustomProviderModels.swift (556 lines)
 
@@ -78,13 +78,13 @@ Symbol maps for 4 large files in this module.
 | 621 | fn | enforceMaxItems | (private) |
 | 628 | fn | clampedMenuBarMax | (private) |
 
-## Quotio/Models/Models.swift (641 lines)
+## Quotio/Models/Models.swift (649 lines)
 
 | Line | Kind | Name | Visibility |
 | ---- | ---- | ---- | ---------- |
-| 337 | fn | hash | (internal) |
-| 528 | method | init | (internal) |
-| 545 | mod | extension Int | (internal) |
-| 591 | fn | validate | (internal) |
-| 631 | fn | sanitize | (internal) |
+| 345 | fn | hash | (internal) |
+| 536 | method | init | (internal) |
+| 553 | mod | extension Int | (internal) |
+| 599 | fn | validate | (internal) |
+| 639 | fn | sanitize | (internal) |
 

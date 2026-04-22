@@ -8,7 +8,7 @@
 
 | File | Lines | Large |
 | ---- | ----- | ----- |
-| `Quotio/Models/AgentModels.swift` | 715 | 📊 |
+| `Quotio/Models/AgentModels.swift` | 727 | 📊 |
 | `Quotio/Models/AntigravityActiveAccount.swift` | 44 |  |
 | `Quotio/Models/AppMode.swift` | 149 |  |
 | `Quotio/Models/ConnectionMode.swift` | 289 |  |
@@ -17,7 +17,7 @@
 | `Quotio/Models/FallbackModels.swift` | 190 |  |
 | `Quotio/Models/IDEScanSettings.swift` | 168 |  |
 | `Quotio/Models/MenuBarSettings.swift` | 632 | 📊 |
-| `Quotio/Models/Models.swift` | 641 | 📊 |
+| `Quotio/Models/Models.swift` | 649 | 📊 |
 | `Quotio/Models/OperatingMode.swift` | 370 |  |
 | `Quotio/Models/ProxyVersionModels.swift` | 201 |  |
 | `Quotio/Models/RequestLog.swift` | 459 |  |

@@ -4,48 +4,62 @@
 
 Symbol maps for 4 large files in this module.
 
-## Quotio/Services/AgentConfigurationService.swift (1609 lines)
+## Quotio/Services/AgentConfigurationService.swift (2148 lines)
 
 | Line | Kind | Name | Visibility |
 | ---- | ---- | ---- | ---------- |
 | 8 | class | AgentConfigurationService | (internal) |
-| 46 | fn | readConfiguration | (internal) |
-| 64 | fn | listBackups | (internal) |
-| 93 | fn | restoreFromBackup | (internal) |
-| 111 | fn | readClaudeCodeConfig | (private) |
-| 147 | fn | readCodexConfig | (private) |
-| 190 | fn | readGeminiCLIConfig | (private) |
-| 228 | fn | readAmpConfig | (private) |
-| 251 | fn | readOpenCodeConfig | (private) |
-| 288 | fn | readFactoryDroidConfig | (private) |
-| 325 | fn | extractTOMLValue | (private) |
-| 336 | fn | extractExportValue | (private) |
-| 351 | fn | escapeTOMLString | (private) |
-| 379 | fn | buildManagedCodexTOML | (private) |
-| 396 | fn | parseTOMLSectionName | (private) |
-| 414 | fn | isCodexManagedTopLevelKey | (private) |
-| 423 | fn | splitManagedCodexConfig | (private) |
-| 431 | fn | extractManagedCodexBanner | (private) |
-| 440 | fn | filterExistingCodexLines | (private) |
-| 481 | fn | composeMergedCodexConfig | (private) |
-| 552 | fn | mergeCodexConfig | (private) |
-| 559 | fn | generateConfiguration | (internal) |
-| 598 | fn | generateDefaultConfiguration | (private) |
-| 614 | fn | generateClaudeCodeDefaultConfig | (private) |
-| 699 | fn | generateCodexDefaultConfig | (private) |
-| 746 | fn | generateGeminiCLIDefaultConfig | (private) |
-| 774 | fn | generateAmpDefaultConfig | (private) |
-| 820 | fn | generateOpenCodeDefaultConfig | (private) |
-| 869 | fn | generateFactoryDroidDefaultConfig | (private) |
-| 934 | fn | generateClaudeCodeConfig | (private) |
-| 1056 | fn | generateCodexConfig | (private) |
-| 1140 | fn | generateGeminiCLIConfig | (private) |
-| 1183 | fn | generateAmpConfig | (private) |
-| 1266 | fn | generateOpenCodeConfig | (private) |
-| 1357 | fn | buildOpenCodeModelConfig | (private) |
-| 1409 | fn | generateFactoryDroidConfig | (private) |
-| 1479 | fn | fetchAvailableModels | (internal) |
-| 1534 | fn | testConnection | (internal) |
+| 56 | fn | readConfiguration | (internal) |
+| 77 | fn | migrateProxyCredentialsIfNeeded | (internal) |
+| 111 | fn | listBackups | (internal) |
+| 140 | fn | restoreFromBackup | (internal) |
+| 158 | fn | readClaudeCodeConfig | (private) |
+| 220 | fn | readCodexConfig | (private) |
+| 280 | fn | readCopilotCLIConfig | (private) |
+| 349 | fn | readGeminiCLIConfig | (private) |
+| 391 | fn | readAmpConfig | (private) |
+| 418 | fn | readOpenCodeConfig | (private) |
+| 463 | fn | readFactoryDroidConfig | (private) |
+| 506 | fn | migrateClaudeCodeProxyCredentialIfNeeded | (private) |
+| 527 | fn | migrateCodexProxyCredentialIfNeeded | (private) |
+| 549 | fn | migrateAmpProxyCredentialIfNeeded | (private) |
+| 573 | fn | migrateOpenCodeProxyCredentialIfNeeded | (private) |
+| 598 | fn | migrateFactoryDroidProxyCredentialIfNeeded | (private) |
+| 632 | fn | extractTOMLValue | (private) |
+| 643 | fn | extractExportValue | (private) |
+| 655 | fn | extractCodexBaseURL | (private) |
+| 665 | fn | normalizeBaseURL | (private) |
+| 671 | fn | writeJSONWithBackupIfChanged | (private) |
+| 697 | fn | escapeTOMLString | (private) |
+| 725 | fn | buildManagedCodexTOML | (private) |
+| 745 | fn | parseTOMLSectionName | (private) |
+| 763 | fn | isCodexManagedTopLevelKey | (private) |
+| 772 | fn | splitManagedCodexConfig | (private) |
+| 780 | fn | extractManagedCodexBanner | (private) |
+| 789 | fn | filterExistingCodexLines | (private) |
+| 830 | fn | composeMergedCodexConfig | (private) |
+| 901 | fn | mergeCodexConfig | (private) |
+| 908 | fn | generateConfiguration | (internal) |
+| 950 | fn | generateDefaultConfiguration | (private) |
+| 968 | fn | generateClaudeCodeDefaultConfig | (private) |
+| 1058 | fn | generateCodexDefaultConfig | (private) |
+| 1105 | fn | generateGeminiCLIDefaultConfig | (private) |
+| 1133 | fn | generateCopilotCLIDefaultConfig | (private) |
+| 1164 | fn | generateAmpDefaultConfig | (private) |
+| 1210 | fn | generateOpenCodeDefaultConfig | (private) |
+| 1259 | fn | generateFactoryDroidDefaultConfig | (private) |
+| 1324 | fn | generateClaudeCodeConfig | (private) |
+| 1410 | fn | mergeClaudeConfig | (private) |
+| 1427 | fn | generateClaudeResult | (private) |
+| 1502 | fn | generateCodexConfig | (private) |
+| 1587 | fn | generateGeminiCLIConfig | (private) |
+| 1630 | fn | generateCopilotCLIConfig | (private) |
+| 1721 | fn | generateAmpConfig | (private) |
+| 1804 | fn | generateOpenCodeConfig | (private) |
+| 1896 | fn | buildOpenCodeModelConfig | (private) |
+| 1948 | fn | generateFactoryDroidConfig | (private) |
+| 2018 | fn | fetchAvailableModels | (internal) |
+| 2073 | fn | testConnection | (internal) |
 
 ## Quotio/Services/AtomFeedUpdateService.swift (533 lines)
 
@@ -140,7 +154,7 @@ Symbol maps for 4 large files in this module.
 | 708 | method | init | (internal) |
 | 722 | fn | encode | (internal) |
 
-## Quotio/Services/StatusBarMenuBuilder.swift (1470 lines)
+## Quotio/Services/StatusBarMenuBuilder.swift (1471 lines)
 
 | Line | Kind | Name | Visibility |
 | ---- | ---- | ---- | ---------- |
@@ -188,6 +202,6 @@ Symbol maps for 4 large files in this module.
 | 1313 | struct | MenuEmptyStateView | (private) |
 | 1328 | struct | MenuViewMoreAccountsView | (private) |
 | 1376 | mod | extension AIProvider | (private) |
-| 1398 | struct | MenuActionsView | (private) |
-| 1436 | struct | MenuBarActionButton | (private) |
+| 1399 | struct | MenuActionsView | (private) |
+| 1437 | struct | MenuBarActionButton | (private) |
 
