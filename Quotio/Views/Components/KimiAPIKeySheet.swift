@@ -1,41 +1,48 @@
 //
-//  GLMAPIKeySheet.swift
+//  KimiAPIKeySheet.swift
 //  Quotio
 //
-//  Simplified API key configuration sheet for GLM (BigModel.cn)
-//  Reference design based on Gemini CLI configuration
+//  Simplified API key configuration sheet for Moonshot Kimi models.
+//  Stored under the hood as an OpenAI-compatible CustomProvider with
+//  baseURL https://api.moonshot.ai/v1 and the kimi-k2.6 model preconfigured.
 //
 
 import SwiftUI
 
-struct GLMAPIKeySheet: View {
+// MARK: - Marker
+
+/// Marker used to identify a CustomProvider entry that represents a
+/// first-class Moonshot/Kimi account (as opposed to a generic OpenAI-compatible provider).
+enum KimiProviderMarker {
+    static let baseURL = "https://api.moonshot.ai/v1"
+    static let defaultName = "Kimi"
+    static let defaultModel = "kimi-k2.6"
+
+    static func isMoonshot(_ provider: CustomProvider) -> Bool {
+        provider.type == .openaiCompatibility &&
+        provider.baseURL.lowercased() == baseURL
+    }
+}
+
+// MARK: - Sheet
+
+struct KimiAPIKeySheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(QuotaViewModel.self) private var viewModel
 
     let provider: CustomProvider?
     let onSave: (CustomProvider) -> Void
 
-    // MARK: - Form State
-
-    @State private var name: String = "GLM"
+    @State private var name: String = KimiProviderMarker.defaultName
     @State private var apiKey: String = ""
-    @State private var endpoint: GLMEndpoint = .bigmodel
-
     @State private var validationError: String?
     @State private var showValidationAlert = false
 
-    private var isEditing: Bool {
-        provider != nil
-    }
-
-    // MARK: - Body
+    private var isEditing: Bool { provider != nil }
 
     var body: some View {
         VStack(spacing: 0) {
             headerView
-
             Divider()
-
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     nameSection
@@ -44,47 +51,42 @@ struct GLMAPIKeySheet: View {
                 }
                 .padding(20)
             }
-
             Divider()
-
             footerView
         }
         .frame(width: 480, height: 420)
-        .onAppear {
-            loadProviderData()
-        }
-        .alert("glm.validationError".localized(), isPresented: $showValidationAlert) {
-            Button("action.ok".localized(), role: .cancel) {}
+        .onAppear { loadProviderData() }
+        .alert("Validation Error", isPresented: $showValidationAlert) {
+            Button("OK", role: .cancel) {}
         } message: {
-            if let error = validationError {
-                Text(error)
-            }
+            if let error = validationError { Text(error) }
         }
     }
 
-    // MARK: - Header
+    // MARK: - Sections
 
     private var headerView: some View {
         HStack(spacing: 16) {
-            Image("glm")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 32, height: 32)
+            ZStack {
+                Circle()
+                    .fill(AIProvider.kimi.color.opacity(0.15))
+                    .frame(width: 36, height: 36)
+                Image(systemName: AIProvider.kimi.iconName)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(AIProvider.kimi.color)
+            }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(isEditing ? "glm.edit".localized() : "glm.add".localized())
+                Text(isEditing ? "Edit Kimi Account" : "Add Kimi Account")
                     .font(.headline)
-
-                Text("glm.description".localized())
+                Text("Connect to Moonshot's Kimi K2.6 via api.moonshot.ai")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             Spacer()
 
-            Button {
-                dismiss()
-            } label: {
+            Button { dismiss() } label: {
                 Image(systemName: "xmark.circle.fill")
                     .font(.title2)
                     .foregroundStyle(.secondary)
@@ -94,17 +96,15 @@ struct GLMAPIKeySheet: View {
         .padding(20)
     }
 
-    // MARK: - Name Section
-
     private var nameSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Account Name")
                 .font(.headline)
             VStack(alignment: .leading, spacing: 8) {
-                Text("A label for this account. Useful when you have multiple GLM keys.")
+                Text("A label for this account. Useful when you have multiple Moonshot keys.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                TextField("GLM", text: $name)
+                TextField("Kimi", text: $name)
                     .textFieldStyle(.roundedBorder)
             }
         }
@@ -112,49 +112,44 @@ struct GLMAPIKeySheet: View {
         .background(Color(.controlBackgroundColor).opacity(0.5))
         .cornerRadius(8)
     }
-
-    // MARK: - API Key Section
 
     private var apiKeySection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("glm.apiKey".localized())
+            Text("API Key")
                 .font(.headline)
-
             VStack(alignment: .leading, spacing: 8) {
-                Text("glm.apiKeyHint".localized())
+                Text("Get a key from platform.moonshot.ai → API Keys.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-
-                SecureField("glm.apiKeyPlaceholder".localized(), text: $apiKey)
+                SecureField("sk-...", text: $apiKey)
                     .textFieldStyle(.roundedBorder)
                     .font(.system(.body, design: .monospaced))
+                Link("Open Moonshot Platform",
+                     destination: URL(string: "https://platform.moonshot.ai/console/api-keys")!)
+                    .font(.caption)
             }
         }
         .padding(16)
         .background(Color(.controlBackgroundColor).opacity(0.5))
         .cornerRadius(8)
     }
-
-    // MARK: - Endpoint Section
 
     private var endpointSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("glm.endpoint".localized())
+            Text("Endpoint")
                 .font(.headline)
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text("glm.endpointHint".localized())
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
-                Picker("", selection: $endpoint) {
-                    ForEach(GLMEndpoint.allCases) { ep in
-                        Text(ep.displayName).tag(ep)
-                    }
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Image(systemName: "link")
+                        .foregroundStyle(.secondary)
+                    Text(KimiProviderMarker.baseURL)
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundStyle(.primary)
+                    Spacer()
                 }
-                .pickerStyle(.menu)
-                .labelsHidden()
-                .disabled(true) // Only bigmodel.cn is supported
+                Text("Routed via the local proxy as an OpenAI-compatible upstream. The kimi-k2.6 model is preconfigured.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(16)
@@ -162,18 +157,12 @@ struct GLMAPIKeySheet: View {
         .cornerRadius(8)
     }
 
-    // MARK: - Footer
-
     private var footerView: some View {
         HStack {
-            Button("action.cancel".localized()) {
-                dismiss()
-            }
-            .keyboardShortcut(.escape)
-
+            Button("Cancel") { dismiss() }
+                .keyboardShortcut(.escape)
             Spacer()
-
-            Button(isEditing ? "glm.saveChanges".localized() : "glm.addProvider".localized()) {
+            Button(isEditing ? "Save Changes" : "Add Kimi") {
                 saveProvider()
             }
             .keyboardShortcut(.return, modifiers: .command)
@@ -186,17 +175,9 @@ struct GLMAPIKeySheet: View {
 
     private func loadProviderData() {
         guard let provider = provider else { return }
-
-        name = provider.name.isEmpty ? "GLM" : provider.name
-
-        // Load API key from first entry
+        name = provider.name
         if let firstKey = provider.apiKeys.first {
             apiKey = firstKey.apiKey
-        }
-
-        // Determine endpoint from base URL
-        if provider.baseURL.contains("bigmodel.cn") {
-            endpoint = .bigmodel
         }
     }
 
@@ -210,20 +191,26 @@ struct GLMAPIKeySheet: View {
             return
         }
         if trimmedKey.isEmpty {
-            validationError = "glm.error.emptyApiKey".localized()
+            validationError = "API key is required."
             showValidationAlert = true
             return
         }
 
-        // Preserve any existing models on edit so the user's curated mapping isn't dropped.
-        let preservedModels = provider?.models ?? []
+        let preservedModels: [ModelMapping]
+        if let provider, !provider.models.isEmpty {
+            preservedModels = provider.models
+        } else {
+            preservedModels = [
+                ModelMapping(name: KimiProviderMarker.defaultModel,
+                             alias: KimiProviderMarker.defaultModel)
+            ]
+        }
 
-        // Build provider using GLM type (routed as openai-compatibility upstream by CLIProxy)
         let newProvider = CustomProvider(
             id: provider?.id ?? UUID(),
             name: trimmedName,
-            type: .glmCompatibility,
-            baseURL: endpoint.baseURL,
+            type: .openaiCompatibility,
+            baseURL: KimiProviderMarker.baseURL,
             apiKeys: [CustomAPIKeyEntry(apiKey: trimmedKey)],
             models: preservedModels,
             isEnabled: true,
@@ -236,30 +223,6 @@ struct GLMAPIKeySheet: View {
     }
 }
 
-// MARK: - GLM Endpoint
-
-enum GLMEndpoint: String, CaseIterable, Codable, Identifiable, Sendable {
-    case bigmodel
-
-    var id: String { rawValue }
-
-    var displayName: String {
-        switch self {
-        case .bigmodel: return "bigmodel.cn"
-        }
-    }
-
-    var baseURL: String {
-        switch self {
-        case .bigmodel: return "https://bigmodel.cn"
-        }
-    }
-}
-
-// MARK: - Preview
-
 #Preview {
-    GLMAPIKeySheet(provider: nil) { provider in
-        print("Saved: \(provider.name)")
-    }
+    KimiAPIKeySheet(provider: nil) { _ in }
 }

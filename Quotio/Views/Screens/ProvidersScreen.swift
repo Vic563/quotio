@@ -24,6 +24,10 @@ struct ProvidersScreen: View {
     @State private var showWarpConnectionSheet = false
     @State private var editingWarpToken: WarpService.WarpToken?
     @State private var showAddProviderPopover = false
+    @State private var showKimiAPIKeySheet = false
+    @State private var editingKimiProvider: CustomProvider?
+    @State private var showGLMAPIKeySheet = false
+    @State private var editingGLMProvider: CustomProvider?
     @State private var switchingAccount: AccountRowData?
     @State private var modeManager = OperatingModeManager.shared
 
@@ -87,6 +91,24 @@ struct ProvidersScreen: View {
                 canEdit: true
             )
             groups[.glm, default: []].append(data)
+        }
+
+        // Add Kimi (Moonshot) providers from CustomProviderService.
+        // Stored as openai-compatibility entries with the canonical Moonshot baseURL.
+        for kimiProvider in customProviderService.providers.filter({ KimiProviderMarker.isMoonshot($0) && $0.isEnabled }) {
+            let data = AccountRowData(
+                id: kimiProvider.id.uuidString,
+                provider: .kimi,
+                displayName: kimiProvider.name.isEmpty ? KimiProviderMarker.defaultName : kimiProvider.name,
+                menuBarAccountKey: kimiProvider.name,
+                source: .direct,
+                status: "ready",
+                statusMessage: nil,
+                isDisabled: false,
+                canDelete: true,
+                canEdit: true
+            )
+            groups[.kimi, default: []].append(data)
         }
 
         // Add Warp providers from WarpService
@@ -198,6 +220,28 @@ struct ProvidersScreen: View {
                 Task { await viewModel.refreshAutoDetectedProviders() }
             }
         }
+        .sheet(isPresented: $showKimiAPIKeySheet) {
+            KimiAPIKeySheet(provider: editingKimiProvider) { provider in
+                if customProviderService.providers.contains(where: { $0.id == provider.id }) {
+                    customProviderService.updateProvider(provider)
+                } else {
+                    customProviderService.addProvider(provider)
+                }
+                syncCustomProvidersToConfig()
+                editingKimiProvider = nil
+            }
+        }
+        .sheet(isPresented: $showGLMAPIKeySheet) {
+            GLMAPIKeySheet(provider: editingGLMProvider) { provider in
+                if customProviderService.providers.contains(where: { $0.id == provider.id }) {
+                    customProviderService.updateProvider(provider)
+                } else {
+                    customProviderService.addProvider(provider)
+                }
+                syncCustomProvidersToConfig()
+                editingGLMProvider = nil
+            }
+        }
         .sheet(isPresented: $showAddProviderPopover) {
             AddProviderPopover(
                 providers: addableProviders,
@@ -291,6 +335,8 @@ struct ProvidersScreen: View {
                                 handleEditGlmAccount(account)
                             } else if provider == .warp {
                                 handleEditWarpAccount(account)
+                            } else if provider == .kimi {
+                                handleEditKimiAccount(account)
                             }
                         },
                         onSwitchAccount: provider == .antigravity ? { account in
@@ -330,8 +376,10 @@ struct ProvidersScreen: View {
 
     @ViewBuilder
     private var customProvidersSection: some View {
-        // Filter out GLM providers (they're shown in Your Accounts section)
-        let nonGlmProviders = customProviderService.providers.filter { $0.type != .glmCompatibility }
+        // Filter out GLM and Kimi providers (they're shown in Your Accounts section)
+        let nonGlmProviders = customProviderService.providers.filter {
+            $0.type != .glmCompatibility && !KimiProviderMarker.isMoonshot($0)
+        }
 
         Section {
             // List existing custom providers
@@ -375,8 +423,12 @@ struct ProvidersScreen: View {
     // MARK: - Helper Functions
 
     private func handleAddProvider(_ provider: AIProvider) {
-        // In Local Proxy Mode, require proxy to be running for OAuth
-        if modeManager.isLocalProxyMode && !viewModel.proxyManager.proxyStatus.running {
+        // The proxy only needs to be running for OAuth-based flows (which use the
+        // local proxy to capture the callback URL). API-key providers (Kimi, Warp,
+        // GLM) and file-import providers (Vertex) just persist credentials locally
+        // and can be configured at any time.
+        let needsProxyForAuth = !provider.usesAPIKeyAuth && provider != .vertex
+        if modeManager.isLocalProxyMode && !viewModel.proxyManager.proxyStatus.running && needsProxyForAuth {
             showProxyRequiredAlert = true
             return
         }
@@ -386,6 +438,12 @@ struct ProvidersScreen: View {
         } else if provider == .warp {
             editingWarpToken = nil
             showWarpConnectionSheet = true
+        } else if provider == .kimi {
+            editingKimiProvider = nil
+            showKimiAPIKeySheet = true
+        } else if provider == .glm {
+            editingGLMProvider = nil
+            showGLMAPIKeySheet = true
         } else {
             viewModel.oauthState = nil
             selectedProvider = provider
@@ -416,6 +474,15 @@ struct ProvidersScreen: View {
             return
         }
 
+        // Handle Kimi accounts (stored as openai-compatibility CustomProviders)
+        if account.provider == .kimi {
+            if let kimiProvider = customProviderService.providers.first(where: { $0.id.uuidString == account.id }) {
+                customProviderService.deleteProvider(id: kimiProvider.id)
+                syncCustomProvidersToConfig()
+            }
+            return
+        }
+
         // Find the original AuthFile to delete
         if let authFile = viewModel.authFiles.first(where: { $0.id == account.id }) {
             await viewModel.deleteAuthFile(authFile)
@@ -433,9 +500,10 @@ struct ProvidersScreen: View {
     }
 
     private func handleEditGlmAccount(_ account: AccountRowData) {
-        // Find the GLM provider by ID and open edit sheet using CustomProviderSheet
+        // Find the GLM provider by ID and open the dedicated GLM sheet
         if let glmProvider = customProviderService.providers.first(where: { $0.id.uuidString == account.id }) {
-            customProviderSheetMode = .edit(glmProvider)
+            editingGLMProvider = glmProvider
+            showGLMAPIKeySheet = true
         }
     }
     
@@ -444,6 +512,13 @@ struct ProvidersScreen: View {
         if let token = warpService.tokens.first(where: { $0.id.uuidString == account.id }) {
             editingWarpToken = token
             showWarpConnectionSheet = true
+        }
+    }
+
+    private func handleEditKimiAccount(_ account: AccountRowData) {
+        if let kimiProvider = customProviderService.providers.first(where: { $0.id.uuidString == account.id }) {
+            editingKimiProvider = kimiProvider
+            showKimiAPIKeySheet = true
         }
     }
 

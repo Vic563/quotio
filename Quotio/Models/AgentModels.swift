@@ -277,6 +277,8 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
             return "Claude 4 Sonnet"
         case "claude-4-opus":
             return "Claude 4 Opus"
+        case "kimi-k2.6":
+            return "Kimi K2.6"
         default:
             break
         }
@@ -304,6 +306,8 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
             return "OpenAI"
         case "glm":
             return "GLM"
+        case "moonshot":
+            return "Moonshot"
         case "github-copilot", "copilot":
             return "GitHub Copilot"
         case "fallback":
@@ -316,18 +320,21 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
     }
 
     static func normalizeProvider(_ provider: String, modelName: String? = nil) -> String {
+        let lowerProvider = provider.lowercased()
+        if lowerProvider == "github-copilot" || lowerProvider == "copilot" {
+            return "github-copilot"
+        }
+
         let lowerModelName = modelName?.lowercased() ?? ""
         if lowerModelName.hasPrefix("gemini-claude-") || lowerModelName.hasPrefix("claude-") {
             return "anthropic"
         }
 
-        switch provider.lowercased() {
+        switch lowerProvider {
         case "claude":
             return "anthropic"
-        case "copilot":
-            return "github-copilot"
         default:
-            return provider.lowercased()
+            return lowerProvider
         }
     }
 
@@ -348,6 +355,9 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
         }
         if lowerModelName.hasPrefix("gemini") {
             return "google"
+        }
+        if lowerModelName.hasPrefix("kimi") || lowerModelName.hasPrefix("moonshot-") {
+            return "moonshot"
         }
         return nil
     }
@@ -428,7 +438,9 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
         AvailableModel(id: "gpt-5", name: "gpt-5", provider: "openai", isDefault: false),
         AvailableModel(id: "gpt-5-codex", name: "gpt-5-codex", provider: "openai", isDefault: false),
         AvailableModel(id: "gpt-5-codex-mini", name: "gpt-5-codex-mini", provider: "openai", isDefault: false),
-        AvailableModel(id: "gpt-oss-120b-medium", name: "gpt-oss-120b-medium", provider: "openai", isDefault: false)
+        AvailableModel(id: "gpt-oss-120b-medium", name: "gpt-oss-120b-medium", provider: "openai", isDefault: false),
+        // Moonshot models (OpenAI-compatible via https://api.moonshot.ai/v1)
+        AvailableModel(id: "kimi-k2.6", name: "kimi-k2.6", provider: "moonshot", isDefault: false)
     ]
 
     static let allModels: [AvailableModel] = allModelsExcludingCopilot + copilotModels
