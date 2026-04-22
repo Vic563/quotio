@@ -1390,6 +1390,8 @@ private extension AIProvider {
         case .glm: return "GLM"
         case .warp: return "Warp"
         case .kimi: return "Kimi"
+        case .openrouter: return "OpenRouter"
+        case .kilocode: return "Kilo Code"
         }
     }
 }
