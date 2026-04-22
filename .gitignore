@@ -32,6 +32,8 @@ plans/
 # Local AI agent context (not shared)
 .context/
 .wallpaper-cache/
+.claude/
+.windsurf/
 
 .DS_Store
 
