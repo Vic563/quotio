@@ -2,7 +2,7 @@
 
 [← Back to INDEX](../../INDEX.md)
 
-**Type:** implicit | **Files:** 28
+**Type:** implicit | **Files:** 30
 
 ## Files
 
@@ -19,7 +19,9 @@
 | `Quotio/Views/Components/FallbackSheets.swift` | 365 |  |
 | `Quotio/Views/Components/GLMAPIKeySheet.swift` | 265 |  |
 | `Quotio/Views/Components/IDEScanSheet.swift` | 320 |  |
+| `Quotio/Views/Components/KilocodeAPIKeySheet.swift` | 229 |  |
 | `Quotio/Views/Components/KimiAPIKeySheet.swift` | 228 |  |
+| `Quotio/Views/Components/OpenRouterAPIKeySheet.swift` | 241 |  |
 | `Quotio/Views/Components/ProviderAccountsGroup.swift` | 227 |  |
 | `Quotio/Views/Components/ProviderDisclosureGroup.swift` | 131 |  |
 | `Quotio/Views/Components/ProviderIcon.swift` | 83 |  |

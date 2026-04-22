@@ -1,10 +1,10 @@
 # Quotio/Services/StatusBarMenuBuilder.swift
 
-[← Back to Module](../modules/Quotio-Services/MODULE.md) | [← Back to INDEX](../INDEX.md)
+[← Back to Module](../modules/root/MODULE.md) | [← Back to INDEX](../INDEX.md)
 
 ## Overview
 
-- **Lines:** 1471
+- **Lines:** 1473
 - **Language:** Swift
 - **Symbols:** 46
 - **Public symbols:** 0
@@ -57,6 +57,6 @@
 | 1313 | struct | MenuEmptyStateView | (private) | `struct MenuEmptyStateView` |
 | 1328 | struct | MenuViewMoreAccountsView | (private) | `struct MenuViewMoreAccountsView` |
 | 1376 | mod | extension AIProvider | (private) | - |
-| 1399 | struct | MenuActionsView | (private) | `struct MenuActionsView` |
-| 1437 | struct | MenuBarActionButton | (private) | `struct MenuBarActionButton` |
+| 1401 | struct | MenuActionsView | (private) | `struct MenuActionsView` |
+| 1439 | struct | MenuBarActionButton | (private) | `struct MenuBarActionButton` |
 

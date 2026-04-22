@@ -2,7 +2,7 @@
 
 [← Back to INDEX](../../INDEX.md)
 
-**Type:** implicit | **Files:** 9
+**Type:** implicit | **Files:** 10
 
 ## Files
 
@@ -15,6 +15,7 @@
 | `Quotio/Services/QuotaFetchers/GeminiCLIQuotaFetcher.swift` | 186 |  |
 | `Quotio/Services/QuotaFetchers/KiroQuotaFetcher.swift` | 677 | 📊 |
 | `Quotio/Services/QuotaFetchers/OpenAIQuotaFetcher.swift` | 420 |  |
+| `Quotio/Services/QuotaFetchers/OpenRouterQuotaFetcher.swift` | 162 |  |
 | `Quotio/Services/QuotaFetchers/TraeQuotaFetcher.swift` | 368 |  |
 | `Quotio/Services/QuotaFetchers/WarpQuotaFetcher.swift` | 262 |  |
 

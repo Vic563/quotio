@@ -41,38 +41,40 @@ Symbol maps for 6 large files in this module.
 | 517 | struct | StatItem | (internal) |
 | 534 | struct | LogRow | (internal) |
 
-## Quotio/Views/Screens/ProvidersScreen.swift (1118 lines)
+## Quotio/Views/Screens/ProvidersScreen.swift (1229 lines)
 
 | Line | Kind | Name | Visibility |
 | ---- | ---- | ---- | ---------- |
 | 16 | struct | ProvidersScreen | (internal) |
-| 424 | fn | handleAddProvider | (private) |
-| 452 | fn | deleteAccount | (private) |
-| 491 | fn | toggleAccountDisabled | (private) |
-| 501 | fn | handleEditGlmAccount | (private) |
-| 509 | fn | handleEditWarpAccount | (private) |
-| 517 | fn | handleEditKimiAccount | (private) |
-| 524 | fn | syncCustomProvidersToConfig | (private) |
-| 534 | struct | CustomProviderRow | (internal) |
-| 635 | struct | MenuBarBadge | (internal) |
-| 658 | class | TooltipWindow | (private) |
-| 670 | method | init | (private) |
-| 700 | fn | show | (internal) |
-| 729 | fn | hide | (internal) |
-| 735 | class | TooltipTrackingView | (private) |
-| 737 | fn | updateTrackingAreas | (internal) |
-| 748 | fn | mouseEntered | (internal) |
-| 752 | fn | mouseExited | (internal) |
-| 756 | fn | hitTest | (internal) |
-| 762 | struct | NativeTooltipView | (private) |
-| 764 | fn | makeNSView | (internal) |
-| 770 | fn | updateNSView | (internal) |
-| 776 | mod | extension View | (private) |
-| 777 | fn | nativeTooltip | (internal) |
-| 784 | struct | MenuBarHintView | (internal) |
-| 799 | struct | OAuthSheet | (internal) |
-| 925 | struct | OAuthStatusView | (private) |
-| 1097 | enum | CustomProviderSheetMode | (internal) |
+| 496 | fn | handleAddProvider | (private) |
+| 530 | fn | deleteAccount | (private) |
+| 588 | fn | toggleAccountDisabled | (private) |
+| 598 | fn | handleEditGlmAccount | (private) |
+| 606 | fn | handleEditWarpAccount | (private) |
+| 614 | fn | handleEditKimiAccount | (private) |
+| 621 | fn | handleEditOpenRouterAccount | (private) |
+| 628 | fn | handleEditKilocodeAccount | (private) |
+| 635 | fn | syncCustomProvidersToConfig | (private) |
+| 645 | struct | CustomProviderRow | (internal) |
+| 746 | struct | MenuBarBadge | (internal) |
+| 769 | class | TooltipWindow | (private) |
+| 781 | method | init | (private) |
+| 811 | fn | show | (internal) |
+| 840 | fn | hide | (internal) |
+| 846 | class | TooltipTrackingView | (private) |
+| 848 | fn | updateTrackingAreas | (internal) |
+| 859 | fn | mouseEntered | (internal) |
+| 863 | fn | mouseExited | (internal) |
+| 867 | fn | hitTest | (internal) |
+| 873 | struct | NativeTooltipView | (private) |
+| 875 | fn | makeNSView | (internal) |
+| 881 | fn | updateNSView | (internal) |
+| 887 | mod | extension View | (private) |
+| 888 | fn | nativeTooltip | (internal) |
+| 895 | struct | MenuBarHintView | (internal) |
+| 910 | struct | OAuthSheet | (internal) |
+| 1036 | struct | OAuthStatusView | (private) |
+| 1208 | enum | CustomProviderSheetMode | (internal) |
 
 ## Quotio/Views/Screens/QuotaScreen.swift (1627 lines)
 

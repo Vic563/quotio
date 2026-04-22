@@ -78,13 +78,13 @@ Symbol maps for 4 large files in this module.
 | 621 | fn | enforceMaxItems | (private) |
 | 628 | fn | clampedMenuBarMax | (private) |
 
-## Quotio/Models/Models.swift (649 lines)
+## Quotio/Models/Models.swift (665 lines)
 
 | Line | Kind | Name | Visibility |
 | ---- | ---- | ---- | ---------- |
-| 345 | fn | hash | (internal) |
-| 536 | method | init | (internal) |
-| 553 | mod | extension Int | (internal) |
-| 599 | fn | validate | (internal) |
-| 639 | fn | sanitize | (internal) |
+| 361 | fn | hash | (internal) |
+| 552 | method | init | (internal) |
+| 569 | mod | extension Int | (internal) |
+| 615 | fn | validate | (internal) |
+| 655 | fn | sanitize | (internal) |
 
