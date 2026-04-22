@@ -23,7 +23,9 @@ nonisolated enum AIProvider: String, CaseIterable, Codable, Identifiable {
     case glm = "glm"
     case warp = "warp"
     case kimi = "kimi"
-    
+    case openrouter = "openrouter"
+    case kilocode = "kilocode"
+
     var id: String { rawValue }
     
     var displayName: String {
@@ -42,6 +44,8 @@ nonisolated enum AIProvider: String, CaseIterable, Codable, Identifiable {
         case .glm: return "GLM"
         case .warp: return "Warp"
         case .kimi: return "Kimi"
+        case .openrouter: return "OpenRouter"
+        case .kilocode: return "Kilo Code"
         }
     }
     
@@ -61,6 +65,8 @@ nonisolated enum AIProvider: String, CaseIterable, Codable, Identifiable {
         case .glm: return "brain"
         case .warp: return "terminal.fill"
         case .kimi: return "moon.stars.fill"
+        case .openrouter: return "arrow.triangle.swap"
+        case .kilocode: return "shippingbox.fill"
         }
     }
     
@@ -81,6 +87,8 @@ nonisolated enum AIProvider: String, CaseIterable, Codable, Identifiable {
         case .glm: return "glm"
         case .warp: return "warp"
         case .kimi: return "kimi"
+        case .openrouter: return "openrouter"
+        case .kilocode: return "kilocode"
         }
     }
     
@@ -100,6 +108,8 @@ nonisolated enum AIProvider: String, CaseIterable, Codable, Identifiable {
         case .glm: return Color(hex: "3B82F6") ?? .blue
         case .warp: return Color(hex: "01E5FF") ?? .cyan
         case .kimi: return Color(hex: "5B5FCF") ?? .indigo
+        case .openrouter: return Color(hex: "6E56CF") ?? .purple
+        case .kilocode: return Color(hex: "F97316") ?? .orange
         }
     }
     
@@ -119,6 +129,8 @@ nonisolated enum AIProvider: String, CaseIterable, Codable, Identifiable {
         case .glm: return ""
         case .warp: return ""
         case .kimi: return ""  // API key auth
+        case .openrouter: return ""  // API key auth
+        case .kilocode: return ""  // API key auth
         }
     }
     
@@ -139,6 +151,8 @@ nonisolated enum AIProvider: String, CaseIterable, Codable, Identifiable {
         case .glm: return "G"
         case .warp: return "W"
         case .kimi: return "KM"
+        case .openrouter: return "OR"
+        case .kilocode: return "KC"
         }
     }
     
@@ -160,13 +174,15 @@ nonisolated enum AIProvider: String, CaseIterable, Codable, Identifiable {
         case .glm: return "glm-menubar"
         case .warp: return "warp-menubar"
         case .kimi: return nil  // Falls back to SF symbol until asset is added
+        case .openrouter: return nil  // Falls back to SF symbol until asset is added
+        case .kilocode: return nil  // Falls back to SF symbol until asset is added
         }
     }
     
     /// Whether this provider supports quota tracking in quota-only mode
     var supportsQuotaOnlyMode: Bool {
         switch self {
-        case .claude, .codex, .cursor, .gemini, .antigravity, .copilot, .trae, .glm, .warp, .kiro, .kimi:
+        case .claude, .codex, .cursor, .gemini, .antigravity, .copilot, .trae, .glm, .warp, .kiro, .kimi, .openrouter, .kilocode:
             return true
         case .qwen, .iflow, .vertex:
             return false
@@ -219,7 +235,7 @@ nonisolated enum AIProvider: String, CaseIterable, Codable, Identifiable {
     /// Whether this provider uses API key authentication (stored in CustomProviderService)
     var usesAPIKeyAuth: Bool {
         switch self {
-        case .glm, .warp, .kimi:
+        case .glm, .warp, .kimi, .openrouter, .kilocode:
             return true
         default:
             return false

@@ -20,6 +20,7 @@ final class QuotaViewModel {
     @ObservationIgnored private let copilotFetcher = CopilotQuotaFetcher()
     @ObservationIgnored private let glmFetcher = GLMQuotaFetcher()
     @ObservationIgnored private let warpFetcher = WarpQuotaFetcher()
+    @ObservationIgnored private let openRouterFetcher = OpenRouterQuotaFetcher()
     @ObservationIgnored private let directAuthService = DirectAuthFileService()
     @ObservationIgnored private let notificationManager = NotificationManager.shared
     @ObservationIgnored private let modeManager = OperatingModeManager.shared
@@ -220,6 +221,7 @@ final class QuotaViewModel {
         await warpFetcher.updateProxyConfiguration()
         await traeFetcher.updateProxyConfiguration()
         await kiroFetcher.updateProxyConfiguration()
+        await openRouterFetcher.updateProxyConfiguration()
     }
 
     private func setupRefreshCadenceCallback() {
@@ -369,8 +371,9 @@ final class QuotaViewModel {
         async let glm: () = refreshGlmQuotasInternal()
         async let warp: () = refreshWarpQuotasInternal()
         async let kiro: () = refreshKiroQuotasInternal()
+        async let openrouter: () = refreshOpenRouterQuotasInternal()
 
-        _ = await (antigravity, openai, copilot, claudeCode, codexCLI, geminiCLI, glm, warp, kiro)
+        _ = await (antigravity, openai, copilot, claudeCode, codexCLI, geminiCLI, glm, warp, kiro, openrouter)
         
         checkQuotaNotifications()
         pruneMenuBarItems()
@@ -495,6 +498,17 @@ final class QuotaViewModel {
         }
     }
     
+    /// Refresh OpenRouter quota using API keys from CustomProviderService
+    /// (entries marked with OpenRouterProviderMarker — base URL openrouter.ai/api/v1).
+    private func refreshOpenRouterQuotasInternal() async {
+        let quotas = await openRouterFetcher.fetchAllQuotas()
+        if !quotas.isEmpty {
+            providerQuotas[.openrouter] = quotas
+        } else {
+            providerQuotas.removeValue(forKey: .openrouter)
+        }
+    }
+
     /// Refresh Warp quota using API keys from WarpService
     private func refreshWarpQuotasInternal() async {
         let warpTokens = await MainActor.run {
@@ -1199,8 +1213,9 @@ final class QuotaViewModel {
             async let glm: () = refreshGlmQuotasInternal()
             async let warp: () = refreshWarpQuotasInternal()
             async let kiro: () = refreshKiroQuotasInternal()
+            async let openrouter: () = refreshOpenRouterQuotasInternal()
 
-            _ = await (antigravity, openai, copilot, claudeCode, glm, warp, kiro)
+            _ = await (antigravity, openai, copilot, claudeCode, glm, warp, kiro, openrouter)
         }
 
         checkQuotaNotifications()
@@ -1253,14 +1268,15 @@ final class QuotaViewModel {
         async let glm: () = refreshGlmQuotasInternal()
         async let warp: () = refreshWarpQuotasInternal()
         async let kiro: () = refreshKiroQuotasInternal()
+        async let openrouter: () = refreshOpenRouterQuotasInternal()
 
         // In Quota-Only Mode, also include CLI fetchers
         if modeManager.isMonitorMode {
             async let codexCLI: () = refreshCodexCLIQuotasInternal()
             async let geminiCLI: () = refreshGeminiCLIQuotasInternal()
-            _ = await (antigravity, openai, copilot, claudeCode, glm, warp, kiro, codexCLI, geminiCLI)
+            _ = await (antigravity, openai, copilot, claudeCode, glm, warp, kiro, openrouter, codexCLI, geminiCLI)
         } else {
-            _ = await (antigravity, openai, copilot, claudeCode, glm, warp, kiro)
+            _ = await (antigravity, openai, copilot, claudeCode, glm, warp, kiro, openrouter)
         }
 
         checkQuotaNotifications()
@@ -1369,6 +1385,8 @@ final class QuotaViewModel {
             await refreshWarpQuotasInternal()
         case .kiro:
             await refreshKiroQuotasInternal()
+        case .openrouter:
+            await refreshOpenRouterQuotasInternal()
         default:
             break
         }

@@ -28,6 +28,10 @@ struct ProvidersScreen: View {
     @State private var editingKimiProvider: CustomProvider?
     @State private var showGLMAPIKeySheet = false
     @State private var editingGLMProvider: CustomProvider?
+    @State private var showOpenRouterAPIKeySheet = false
+    @State private var editingOpenRouterProvider: CustomProvider?
+    @State private var showKilocodeAPIKeySheet = false
+    @State private var editingKilocodeProvider: CustomProvider?
     @State private var switchingAccount: AccountRowData?
     @State private var modeManager = OperatingModeManager.shared
 
@@ -109,6 +113,42 @@ struct ProvidersScreen: View {
                 canEdit: true
             )
             groups[.kimi, default: []].append(data)
+        }
+
+        // Add OpenRouter providers from CustomProviderService.
+        // Stored as openai-compatibility entries with base URL openrouter.ai/api/v1.
+        for orProvider in customProviderService.providers.filter({ OpenRouterProviderMarker.isOpenRouter($0) && $0.isEnabled }) {
+            let data = AccountRowData(
+                id: orProvider.id.uuidString,
+                provider: .openrouter,
+                displayName: orProvider.name.isEmpty ? OpenRouterProviderMarker.defaultName : orProvider.name,
+                menuBarAccountKey: orProvider.name,
+                source: .direct,
+                status: "ready",
+                statusMessage: nil,
+                isDisabled: false,
+                canDelete: true,
+                canEdit: true
+            )
+            groups[.openrouter, default: []].append(data)
+        }
+
+        // Add Kilo Code providers from CustomProviderService.
+        // Stored as openai-compatibility entries with base URL api.kilo.ai/api/gateway.
+        for kcProvider in customProviderService.providers.filter({ KilocodeProviderMarker.isKilocode($0) && $0.isEnabled }) {
+            let data = AccountRowData(
+                id: kcProvider.id.uuidString,
+                provider: .kilocode,
+                displayName: kcProvider.name.isEmpty ? KilocodeProviderMarker.defaultName : kcProvider.name,
+                menuBarAccountKey: kcProvider.name,
+                source: .direct,
+                status: "ready",
+                statusMessage: nil,
+                isDisabled: false,
+                canDelete: true,
+                canEdit: true
+            )
+            groups[.kilocode, default: []].append(data)
         }
 
         // Add Warp providers from WarpService
@@ -242,6 +282,29 @@ struct ProvidersScreen: View {
                 editingGLMProvider = nil
             }
         }
+        .sheet(isPresented: $showOpenRouterAPIKeySheet) {
+            OpenRouterAPIKeySheet(provider: editingOpenRouterProvider) { provider in
+                if customProviderService.providers.contains(where: { $0.id == provider.id }) {
+                    customProviderService.updateProvider(provider)
+                } else {
+                    customProviderService.addProvider(provider)
+                }
+                syncCustomProvidersToConfig()
+                editingOpenRouterProvider = nil
+                Task { await viewModel.refreshQuotaForProvider(.openrouter) }
+            }
+        }
+        .sheet(isPresented: $showKilocodeAPIKeySheet) {
+            KilocodeAPIKeySheet(provider: editingKilocodeProvider) { provider in
+                if customProviderService.providers.contains(where: { $0.id == provider.id }) {
+                    customProviderService.updateProvider(provider)
+                } else {
+                    customProviderService.addProvider(provider)
+                }
+                syncCustomProvidersToConfig()
+                editingKilocodeProvider = nil
+            }
+        }
         .sheet(isPresented: $showAddProviderPopover) {
             AddProviderPopover(
                 providers: addableProviders,
@@ -337,6 +400,10 @@ struct ProvidersScreen: View {
                                 handleEditWarpAccount(account)
                             } else if provider == .kimi {
                                 handleEditKimiAccount(account)
+                            } else if provider == .openrouter {
+                                handleEditOpenRouterAccount(account)
+                            } else if provider == .kilocode {
+                                handleEditKilocodeAccount(account)
                             }
                         },
                         onSwitchAccount: provider == .antigravity ? { account in
@@ -376,9 +443,14 @@ struct ProvidersScreen: View {
 
     @ViewBuilder
     private var customProvidersSection: some View {
-        // Filter out GLM and Kimi providers (they're shown in Your Accounts section)
+        // Filter out first-class wrappers (GLM, Kimi, OpenRouter, Kilo Code).
+        // These are shown in the "Your Accounts" section under their own provider
+        // headers, not in the generic Custom Providers list.
         let nonGlmProviders = customProviderService.providers.filter {
-            $0.type != .glmCompatibility && !KimiProviderMarker.isMoonshot($0)
+            $0.type != .glmCompatibility &&
+            !KimiProviderMarker.isMoonshot($0) &&
+            !OpenRouterProviderMarker.isOpenRouter($0) &&
+            !KilocodeProviderMarker.isKilocode($0)
         }
 
         Section {
@@ -444,6 +516,12 @@ struct ProvidersScreen: View {
         } else if provider == .glm {
             editingGLMProvider = nil
             showGLMAPIKeySheet = true
+        } else if provider == .openrouter {
+            editingOpenRouterProvider = nil
+            showOpenRouterAPIKeySheet = true
+        } else if provider == .kilocode {
+            editingKilocodeProvider = nil
+            showKilocodeAPIKeySheet = true
         } else {
             viewModel.oauthState = nil
             selectedProvider = provider
@@ -478,6 +556,25 @@ struct ProvidersScreen: View {
         if account.provider == .kimi {
             if let kimiProvider = customProviderService.providers.first(where: { $0.id.uuidString == account.id }) {
                 customProviderService.deleteProvider(id: kimiProvider.id)
+                syncCustomProvidersToConfig()
+            }
+            return
+        }
+
+        // Handle OpenRouter accounts (stored as openai-compatibility CustomProviders)
+        if account.provider == .openrouter {
+            if let orProvider = customProviderService.providers.first(where: { $0.id.uuidString == account.id }) {
+                customProviderService.deleteProvider(id: orProvider.id)
+                syncCustomProvidersToConfig()
+                await viewModel.refreshQuotaForProvider(.openrouter)
+            }
+            return
+        }
+
+        // Handle Kilo Code accounts (stored as openai-compatibility CustomProviders)
+        if account.provider == .kilocode {
+            if let kcProvider = customProviderService.providers.first(where: { $0.id.uuidString == account.id }) {
+                customProviderService.deleteProvider(id: kcProvider.id)
                 syncCustomProvidersToConfig()
             }
             return
@@ -519,6 +616,20 @@ struct ProvidersScreen: View {
         if let kimiProvider = customProviderService.providers.first(where: { $0.id.uuidString == account.id }) {
             editingKimiProvider = kimiProvider
             showKimiAPIKeySheet = true
+        }
+    }
+
+    private func handleEditOpenRouterAccount(_ account: AccountRowData) {
+        if let orProvider = customProviderService.providers.first(where: { $0.id.uuidString == account.id }) {
+            editingOpenRouterProvider = orProvider
+            showOpenRouterAPIKeySheet = true
+        }
+    }
+
+    private func handleEditKilocodeAccount(_ account: AccountRowData) {
+        if let kcProvider = customProviderService.providers.first(where: { $0.id.uuidString == account.id }) {
+            editingKilocodeProvider = kcProvider
+            showKilocodeAPIKeySheet = true
         }
     }
 
