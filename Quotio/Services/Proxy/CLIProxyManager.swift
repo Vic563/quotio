@@ -172,7 +172,7 @@ final class CLIProxyManager {
         }
     }
     
-    private static let githubRepo = "router-for-me/CLIProxyAPIPlus"
+    private static let githubRepo = "router-for-me/CLIProxyAPI"
     private static let binaryName = "CLIProxyAPI"
     
     /// Base URL for the proxy API (always points to CLIProxyAPI directly)
@@ -681,7 +681,7 @@ final class CLIProxyManager {
     }
     
     private func fetchLatestRelease() async throws -> ReleaseInfo {
-        let urlString = "https://api.github.com/repos/router-for-me/CLIProxyAPIPlus/releases/latest"
+        let urlString = "https://api.github.com/repos/\(Self.githubRepo)/releases/latest"
         guard let url = URL(string: urlString) else {
             throw ProxyError.networkError("Invalid URL")
         }

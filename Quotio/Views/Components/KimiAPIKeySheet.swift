@@ -13,7 +13,7 @@
 //  configuration documented in CLIProxyAPI issue #1280) with:
 //    base-url: "https://api.kimi.com/coding"
 //    headers:  { User-Agent: "KimiCLI/1.3" }
-//    models:   kimi-k2.6 → kimi-for-coding
+//    models:   upstream kimi-for-coding → local alias kimi-k2.6
 //
 
 import SwiftUI
@@ -29,10 +29,10 @@ enum KimiProviderMarker {
     /// platform API. We still recognise this so we can migrate old entries.
     static let legacyBaseURL = "https://api.moonshot.ai/v1"
     static let defaultName = "Kimi"
-    /// Client-facing model name (what Claude Code sends in `model:`).
-    static let defaultModel = "kimi-k2.6"
     /// Upstream model id Kimi For Coding actually serves.
     static let upstreamModel = "kimi-for-coding"
+    /// Client-facing model name (what Claude Code sends in `model:`).
+    static let defaultModel = "kimi-k2.6"
     /// User-Agent required by Kimi For Coding's upstream gating.
     static let userAgentHeader = "KimiCLI/1.3"
 
@@ -226,7 +226,7 @@ struct KimiAPIKeySheet: View {
                         .foregroundStyle(.primary)
                     Spacer()
                 }
-                Text("Routed via the local proxy to Kimi For Coding. Quotio sends the required \(KimiProviderMarker.userAgentHeader) header and maps kimi-k2.6 → kimi-for-coding upstream.")
+                Text("Routed via the local proxy to Kimi For Coding. Quotio sends the required \(KimiProviderMarker.userAgentHeader) header and maps the local kimi-k2.6 alias to the kimi-for-coding upstream model.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -276,12 +276,11 @@ struct KimiAPIKeySheet: View {
         }
 
         // Always write the canonical Kimi-For-Coding model mapping. We
-        // intentionally drop any preserved old mapping (e.g. an alias of
-        // `kimi-k2.6` → `kimi-k2.6` from the legacy moonshot.ai config) so
-        // edits from the UI always converge on the working upstream id.
+        // intentionally drop any preserved old mapping so edits from the UI
+        // always converge on the working upstream id with a local kimi-k2.6 alias.
         let canonicalModels = [
-            ModelMapping(name: KimiProviderMarker.defaultModel,
-                         alias: KimiProviderMarker.upstreamModel)
+            ModelMapping(name: KimiProviderMarker.upstreamModel,
+                         alias: KimiProviderMarker.defaultModel)
         ]
 
         // Kimi For Coding gates by User-Agent. Without this header upstream
