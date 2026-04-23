@@ -143,9 +143,9 @@ enum CustomProviderType: String, CaseIterable, Codable, Identifiable, Sendable {
     /// Whether this provider type supports custom headers
     var supportsCustomHeaders: Bool {
         switch self {
-        case .geminiCompatibility:
+        case .geminiCompatibility, .claudeCompatibility:
             return true
-        case .openaiCompatibility, .claudeCompatibility, .codexCompatibility, .glmCompatibility:
+        case .openaiCompatibility, .codexCompatibility, .glmCompatibility:
             return false
         }
     }
@@ -441,7 +441,17 @@ extension CustomProvider {
             if let proxyURL = key.proxyURL, !proxyURL.isEmpty {
                 yaml += "    proxy-url: \"\(proxyURL)\"\n"
             }
-            
+
+            // Required for upstreams that gate by header (e.g. Kimi For Coding
+            // checking User-Agent). CLIProxyAPI's claude-api-key codepath
+            // forwards these verbatim to the upstream request.
+            if !headers.isEmpty {
+                yaml += "    headers:\n"
+                for header in headers {
+                    yaml += "      \(header.key): \"\(header.value)\"\n"
+                }
+            }
+
             if !models.isEmpty {
                 yaml += "    models:\n"
                 for model in models {

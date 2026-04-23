@@ -154,14 +154,63 @@ final class CustomProviderService {
             decoder.dateDecodingStrategy = .iso8601
             let decoded = try decoder.decode([CustomProvider].self, from: data)
             let normalized = decoded.map { normalizedProvider($0) }
-            providers = normalized
-            if normalized != decoded {
+            let migrated = normalized.map { migrateLegacyKimiProvider($0) }
+            providers = migrated
+            if migrated != decoded {
                 saveProviders()
             }
         } catch {
             lastError = "Failed to load providers: \(error.localizedDescription)"
             providers = []
         }
+    }
+
+    /// One-shot in-place migration for Kimi entries written by Quotio ≤ 0.15.0.
+    ///
+    /// Older builds saved Kimi accounts as `openai-compatibility` providers
+    /// pointing at `https://api.moonshot.ai/v1` with an alias of `kimi-k2.6`
+    /// → `kimi-k2.6`. That endpoint rejected Kimi-For-Coding subscription
+    /// keys (the `sk-kimi-…` keys handed out by api.kimi.com) with HTTP 401,
+    /// which CLIProxyAPI then escalated to `auth_unavailable` 500s.
+    ///
+    /// The fix is to rewrite the entry as a `claude-api-key` provider
+    /// targeting `https://api.kimi.com/coding`, with the gating
+    /// `User-Agent: KimiCLI/1.3` header and an alias of
+    /// `kimi-k2.6 → kimi-for-coding`. The user's API key is preserved.
+    ///
+    /// Detection is by the legacy base URL only — we deliberately avoid
+    /// touching anyone who manually configured a generic OpenAI-compatible
+    /// provider that happens to point at moonshot.ai.
+    private func migrateLegacyKimiProvider(_ provider: CustomProvider) -> CustomProvider {
+        guard provider.type == .openaiCompatibility,
+              provider.baseURL.lowercased() == KimiProviderMarker.legacyBaseURL.lowercased()
+        else {
+            return provider
+        }
+
+        let migratedModels = [
+            ModelMapping(name: KimiProviderMarker.defaultModel,
+                         alias: KimiProviderMarker.upstreamModel)
+        ]
+        let migratedHeaders = [
+            CustomHeader(key: "User-Agent",
+                         value: KimiProviderMarker.userAgentHeader)
+        ]
+
+        return CustomProvider(
+            id: provider.id,
+            name: provider.name,
+            type: .claudeCompatibility,
+            baseURL: KimiProviderMarker.baseURL,
+            prefix: provider.prefix,
+            apiKeys: provider.apiKeys,
+            models: migratedModels,
+            headers: migratedHeaders,
+            limitToSelectedModels: provider.limitToSelectedModels,
+            isEnabled: provider.isEnabled,
+            createdAt: provider.createdAt,
+            updatedAt: Date()
+        )
     }
     
     private func saveProviders() {
