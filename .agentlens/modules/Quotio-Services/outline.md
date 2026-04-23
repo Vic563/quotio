@@ -154,7 +154,7 @@ Symbol maps for 4 large files in this module.
 | 708 | method | init | (internal) |
 | 722 | fn | encode | (internal) |
 
-## Quotio/Services/StatusBarMenuBuilder.swift (1471 lines)
+## Quotio/Services/StatusBarMenuBuilder.swift (1473 lines)
 
 | Line | Kind | Name | Visibility |
 | ---- | ---- | ---- | ---------- |
@@ -202,6 +202,6 @@ Symbol maps for 4 large files in this module.
 | 1313 | struct | MenuEmptyStateView | (private) |
 | 1328 | struct | MenuViewMoreAccountsView | (private) |
 | 1376 | mod | extension AIProvider | (private) |
-| 1399 | struct | MenuActionsView | (private) |
-| 1437 | struct | MenuBarActionButton | (private) |
+| 1401 | struct | MenuActionsView | (private) |
+| 1439 | struct | MenuBarActionButton | (private) |
 

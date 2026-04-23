@@ -14,7 +14,7 @@
 | `Quotio/Services/CLIExecutor.swift` | 430 |  |
 | `Quotio/Services/ChecksumVerifier.swift` | 78 |  |
 | `Quotio/Services/CompatibilityChecker.swift` | 123 |  |
-| `Quotio/Services/CustomProviderService.swift` | 362 |  |
+| `Quotio/Services/CustomProviderService.swift` | 411 |  |
 | `Quotio/Services/DirectAuthFileService.swift` | 493 |  |
 | `Quotio/Services/FallbackSettingsManager.swift` | 367 |  |
 | `Quotio/Services/GLMQuotaFetcher.swift` | 186 |  |
@@ -29,7 +29,7 @@
 | `Quotio/Services/RequestTracker.swift` | 194 |  |
 | `Quotio/Services/ShellProfileManager.swift` | 121 |  |
 | `Quotio/Services/StatusBarManager.swift` | 272 |  |
-| `Quotio/Services/StatusBarMenuBuilder.swift` | 1471 | 📊 |
+| `Quotio/Services/StatusBarMenuBuilder.swift` | 1473 | 📊 |
 | `Quotio/Services/UpdaterService.swift` | 168 |  |
 | `Quotio/Services/WarmupService.swift` | 185 |  |
 | `Quotio/Services/WarpService.swift` | 83 |  |

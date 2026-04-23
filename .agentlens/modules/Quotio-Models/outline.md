@@ -18,7 +18,7 @@ Symbol maps for 4 large files in this module.
 | 643 | fn | success | (internal) |
 | 669 | fn | failure | (internal) |
 
-## Quotio/Models/CustomProviderModels.swift (556 lines)
+## Quotio/Models/CustomProviderModels.swift (566 lines)
 
 | Line | Kind | Name | Visibility |
 | ---- | ---- | ---- | ---------- |
@@ -35,10 +35,10 @@ Symbol maps for 4 large files in this module.
 | 382 | fn | toYAMLBlock | (internal) |
 | 396 | fn | generateOpenAICompatibilityYAML | (private) |
 | 426 | fn | generateClaudeCompatibilityYAML | (private) |
-| 455 | fn | generateGeminiCompatibilityYAML | (private) |
-| 483 | fn | generateCodexCompatibilityYAML | (private) |
-| 500 | fn | generateGlmCompatibilityYAML | (private) |
-| 516 | fn | toYAMLSections | (internal) |
+| 465 | fn | generateGeminiCompatibilityYAML | (private) |
+| 493 | fn | generateCodexCompatibilityYAML | (private) |
+| 510 | fn | generateGlmCompatibilityYAML | (private) |
+| 526 | fn | toYAMLSections | (internal) |
 
 ## Quotio/Models/MenuBarSettings.swift (632 lines)
 
