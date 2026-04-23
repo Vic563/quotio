@@ -17,7 +17,7 @@
 
 > Changes take effect after proxy restart (CLIProxyAPI does not support live routing API)
 
-### `NOTE` (Quotio/Services/Proxy/CLIProxyManager.swift:1560)
+### `NOTE` (Quotio/Services/Proxy/CLIProxyManager.swift:1576)
 
 > Notification is handled by AtomFeedUpdateService polling
 

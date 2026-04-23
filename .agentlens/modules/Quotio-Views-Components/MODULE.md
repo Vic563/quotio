@@ -21,7 +21,7 @@
 | `Quotio/Views/Components/IDEScanSheet.swift` | 320 |  |
 | `Quotio/Views/Components/KilocodeAPIKeySheet.swift` | 229 |  |
 | `Quotio/Views/Components/KimiAPIKeySheet.swift` | 313 |  |
-| `Quotio/Views/Components/OpenRouterAPIKeySheet.swift` | 241 |  |
+| `Quotio/Views/Components/OpenRouterAPIKeySheet.swift` | 274 |  |
 | `Quotio/Views/Components/ProviderAccountsGroup.swift` | 227 |  |
 | `Quotio/Views/Components/ProviderDisclosureGroup.swift` | 131 |  |
 | `Quotio/Views/Components/ProviderIcon.swift` | 83 |  |
