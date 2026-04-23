@@ -494,7 +494,7 @@ struct AgentConfigSheet: View {
                 (viewModel.availableModels + AvailableModel.codexAnthropicModels)
                     .filter {
                         let provider = $0.normalizedProvider
-                        guard provider == "openai" || provider == "anthropic" || provider == "glm" else {
+                        guard provider == "openai" || provider == "anthropic" || provider == "glm" || provider == "openrouter" else {
                             return false
                         }
                         if provider == "anthropic" && $0.name.hasPrefix("gemini-claude-") {

@@ -31,6 +31,139 @@ struct OpenRouterCreditsData: Codable, Sendable {
     }
 }
 
+nonisolated private struct OpenRouterModelsResponse: Codable, Sendable {
+    let data: [OpenRouterModelData]
+}
+
+nonisolated private struct OpenRouterModelData: Codable, Sendable {
+    let id: String
+}
+
+nonisolated private struct OpenRouterModelCatalogSnapshot: Codable, Sendable {
+    let modelIDs: [String]
+    let fetchedAt: Date
+}
+
+nonisolated enum OpenRouterModelCatalogCache {
+    private static let storageKey = "openRouterModelCatalogSnapshot"
+
+    static func loadModelIDs(maxAge: TimeInterval? = nil, now: Date = Date()) -> [String] {
+        guard let data = UserDefaults.standard.data(forKey: storageKey),
+              let snapshot = try? JSONDecoder().decode(OpenRouterModelCatalogSnapshot.self, from: data) else {
+            return []
+        }
+
+        if let maxAge, now.timeIntervalSince(snapshot.fetchedAt) > maxAge {
+            return []
+        }
+
+        return snapshot.modelIDs
+    }
+
+    @MainActor
+    static func load(maxAge: TimeInterval? = nil, now: Date = Date()) -> [ModelMapping] {
+        loadModelIDs(maxAge: maxAge, now: now).map { ModelMapping(name: $0, alias: $0) }
+    }
+
+    static func saveModelIDs(_ modelIDs: [String], now: Date = Date()) {
+        let modelIDs = modelIDs
+            .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .uniqued()
+
+        guard !modelIDs.isEmpty else { return }
+
+        let snapshot = OpenRouterModelCatalogSnapshot(modelIDs: modelIDs, fetchedAt: now)
+        guard let data = try? JSONEncoder().encode(snapshot) else { return }
+        UserDefaults.standard.set(data, forKey: storageKey)
+    }
+
+    @MainActor
+    static func save(_ mappings: [ModelMapping], now: Date = Date()) {
+        saveModelIDs(mappings.map(\.name), now: now)
+    }
+}
+
+actor OpenRouterModelCatalogService {
+    static let shared = OpenRouterModelCatalogService()
+
+    private let modelsURL = "https://openrouter.ai/api/v1/models"
+    private let cacheTTL: TimeInterval = 12 * 60 * 60
+    private var memoryCache: (modelIDs: [String], fetchedAt: Date)?
+    private var session: URLSession
+
+    init() {
+        let config = ProxyConfigurationService.createProxiedConfigurationStatic(timeout: 20)
+        self.session = URLSession(configuration: config)
+    }
+
+    func updateProxyConfiguration() {
+        let config = ProxyConfigurationService.createProxiedConfigurationStatic(timeout: 20)
+        self.session = URLSession(configuration: config)
+    }
+
+    func fetchModelMappings(apiKey: String? = nil, forceRefresh: Bool = false) async throws -> [ModelMapping] {
+        let now = Date()
+
+        if !forceRefresh {
+            if let memoryCache, now.timeIntervalSince(memoryCache.fetchedAt) <= cacheTTL {
+                return await mappings(from: memoryCache.modelIDs)
+            }
+
+            let diskModelIDs = OpenRouterModelCatalogCache.loadModelIDs(maxAge: cacheTTL, now: now)
+            if !diskModelIDs.isEmpty {
+                memoryCache = (diskModelIDs, now)
+                return await mappings(from: diskModelIDs)
+            }
+        }
+
+        guard let url = URL(string: modelsURL) else {
+            throw QuotaFetchError.invalidURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.timeoutInterval = 20
+        request.addValue(OpenRouterProviderMarker.httpReferer, forHTTPHeaderField: "HTTP-Referer")
+        request.addValue(OpenRouterProviderMarker.xTitle, forHTTPHeaderField: "X-Title")
+
+        let normalizedKey = apiKey.map(OpenRouterProviderMarker.normalizedAPIKey) ?? ""
+        if !normalizedKey.isEmpty {
+            request.addValue("Bearer \(normalizedKey)", forHTTPHeaderField: "Authorization")
+        }
+
+        let (data, response) = try await session.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw QuotaFetchError.invalidResponse
+        }
+
+        guard 200...299 ~= httpResponse.statusCode else {
+            throw QuotaFetchError.httpError(httpResponse.statusCode)
+        }
+
+        let decoded = try JSONDecoder().decode(OpenRouterModelsResponse.self, from: data)
+        let modelIDs = decoded.data
+            .map(\.id)
+            .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            .uniqued()
+            .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+
+        guard !modelIDs.isEmpty else {
+            throw QuotaFetchError.invalidResponse
+        }
+
+        memoryCache = (modelIDs, now)
+        OpenRouterModelCatalogCache.saveModelIDs(modelIDs, now: now)
+        return await mappings(from: modelIDs)
+    }
+
+    private func mappings(from modelIDs: [String]) async -> [ModelMapping] {
+        await MainActor.run {
+            modelIDs.map { ModelMapping(name: $0, alias: $0) }
+        }
+    }
+}
+
 // MARK: - Quota Fetcher
 
 actor OpenRouterQuotaFetcher {
@@ -158,5 +291,12 @@ actor OpenRouterQuotaFetcher {
                 OpenRouterProviderMarker.isOpenRouter($0) && $0.isEnabled
             }
         }
+    }
+}
+
+private extension Array where Element: Hashable {
+    nonisolated func uniqued() -> [Element] {
+        var seen = Set<Element>()
+        return filter { seen.insert($0).inserted }
     }
 }

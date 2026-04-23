@@ -610,6 +610,22 @@ final class CLIProxyManager {
             Log.proxy("Failed to sync custom providers to config: \\(error)")
         }
     }
+
+    /// Writes custom provider changes to config.yaml and restarts the proxy if
+    /// needed so newly added model routes are visible through /v1/models.
+    func syncCustomProvidersAndRestartIfRunning() async {
+        syncCustomProvidersToConfig()
+        guard proxyStatus.running else { return }
+
+        stop()
+        try? await Task.sleep(for: .milliseconds(500))
+
+        do {
+            try await start()
+        } catch {
+            lastError = "Failed to restart: \(error.localizedDescription)"
+        }
+    }
     
     var isBinaryInstalled: Bool {
         // Check versioned storage first, then legacy path

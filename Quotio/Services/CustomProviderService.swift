@@ -32,6 +32,9 @@ final class CustomProviderService {
         if KimiProviderMarker.isMoonshot(provider) {
             return normalizedKimiProvider(provider, createdAt: createdAt)
         }
+        if OpenRouterProviderMarker.isOpenRouter(provider) {
+            return normalizedOpenRouterProvider(provider, createdAt: createdAt)
+        }
 
         return CustomProvider(
             id: provider.id,
@@ -47,6 +50,94 @@ final class CustomProviderService {
             createdAt: createdAt ?? provider.createdAt,
             updatedAt: provider.updatedAt
         )
+    }
+
+    /// First-class OpenRouter accounts must have explicit model mappings because
+    /// CLIProxyAPI only registers OpenAI-compatible aliases from `models`.
+    private func normalizedOpenRouterProvider(_ provider: CustomProvider, createdAt: Date? = nil) -> CustomProvider {
+        let cachedModels = OpenRouterModelCatalogCache.load()
+        let fallbackModels = cachedModels.isEmpty
+            ? AvailableModel.openRouterModels.map { ModelMapping(name: $0.name, alias: $0.name) }
+            : cachedModels
+        let models = provider.models.isEmpty ? fallbackModels : provider.models
+        let apiKeys = provider.apiKeys.map {
+            CustomAPIKeyEntry(
+                id: $0.id,
+                apiKey: OpenRouterProviderMarker.normalizedAPIKey($0.apiKey),
+                proxyURL: $0.proxyURL
+            )
+        }
+
+        return CustomProvider(
+            id: provider.id,
+            name: provider.name.isEmpty ? OpenRouterProviderMarker.defaultName : provider.name,
+            type: .openaiCompatibility,
+            baseURL: OpenRouterProviderMarker.baseURL,
+            prefix: provider.prefix,
+            apiKeys: apiKeys,
+            models: models,
+            headers: provider.headers,
+            limitToSelectedModels: true,
+            isEnabled: provider.isEnabled,
+            createdAt: createdAt ?? provider.createdAt,
+            updatedAt: provider.updatedAt
+        )
+    }
+
+    /// Refreshes first-class OpenRouter accounts with the live OpenRouter catalog.
+    /// The generated CLIProxyAPI config needs explicit mappings, so storing the
+    /// fetched catalog here is what makes all OpenRouter slugs routable.
+    @discardableResult
+    func refreshOpenRouterModelCatalogs(forceRefresh: Bool = false) async -> Bool {
+        var changed = false
+
+        for index in providers.indices {
+            let provider = providers[index]
+            guard OpenRouterProviderMarker.isOpenRouter(provider) else { continue }
+
+            do {
+                let apiKey = provider.apiKeys.first?.apiKey
+                let mappings = try await OpenRouterModelCatalogService.shared.fetchModelMappings(
+                    apiKey: apiKey,
+                    forceRefresh: forceRefresh
+                )
+                guard !mappings.isEmpty else { continue }
+
+                let currentIDs = Set(provider.models.map(\.name))
+                let fetchedIDs = Set(mappings.map(\.name))
+                guard currentIDs != fetchedIDs else { continue }
+
+                providers[index] = CustomProvider(
+                    id: provider.id,
+                    name: provider.name,
+                    type: .openaiCompatibility,
+                    baseURL: OpenRouterProviderMarker.baseURL,
+                    prefix: provider.prefix,
+                    apiKeys: provider.apiKeys.map {
+                        CustomAPIKeyEntry(
+                            id: $0.id,
+                            apiKey: OpenRouterProviderMarker.normalizedAPIKey($0.apiKey),
+                            proxyURL: $0.proxyURL
+                        )
+                    },
+                    models: mappings,
+                    headers: provider.headers,
+                    limitToSelectedModels: true,
+                    isEnabled: provider.isEnabled,
+                    createdAt: provider.createdAt,
+                    updatedAt: Date()
+                )
+                changed = true
+            } catch {
+                lastError = "Failed to refresh OpenRouter models: \(error.localizedDescription)"
+            }
+        }
+
+        if changed {
+            saveProviders()
+        }
+
+        return changed
     }
 
     /// Canonicalizes both legacy Kimi entries and 0.16.x entries that wrote
