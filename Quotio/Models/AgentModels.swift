@@ -267,6 +267,8 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
             return "Claude Opus 4.6"
         case "claude-opus-4-6-thinking":
             return "Claude Opus 4.6 Thinking"
+        case "claude-opus-4-7":
+            return "Claude Opus 4.7"
         case "claude-opus-4.5":
             return "Claude Opus 4.5"
         case "claude-opus-4.6":
@@ -451,7 +453,7 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
         AvailableModel(id: "x-ai/grok-4.20", name: "x-ai/grok-4.20", provider: "openrouter", isDefault: false)
     ]
 
-    static let codexAnthropicModels: [AvailableModel] = [
+    static let anthropicModels: [AvailableModel] = [
         AvailableModel(id: "claude-haiku-4-5", name: "claude-haiku-4-5", provider: "anthropic", isDefault: false),
         AvailableModel(id: "claude-sonnet-4", name: "claude-sonnet-4", provider: "anthropic", isDefault: false),
         AvailableModel(id: "claude-sonnet-4-5", name: "claude-sonnet-4-5", provider: "anthropic", isDefault: false),
@@ -460,10 +462,13 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
         AvailableModel(id: "claude-opus-4-5", name: "claude-opus-4-5", provider: "anthropic", isDefault: false),
         AvailableModel(id: "claude-opus-4-5-thinking", name: "claude-opus-4-5-thinking", provider: "anthropic", isDefault: false),
         AvailableModel(id: "claude-opus-4-6", name: "claude-opus-4-6", provider: "anthropic", isDefault: false),
-        AvailableModel(id: "claude-opus-4-6-thinking", name: "claude-opus-4-6-thinking", provider: "anthropic", isDefault: false)
+        AvailableModel(id: "claude-opus-4-6-thinking", name: "claude-opus-4-6-thinking", provider: "anthropic", isDefault: false),
+        AvailableModel(id: "claude-opus-4-7", name: "claude-opus-4-7", provider: "anthropic", isDefault: false)
     ]
 
-    static let allModelsExcludingCopilot: [AvailableModel] = [
+    static let codexAnthropicModels: [AvailableModel] = anthropicModels
+
+    static let allModelsExcludingCopilot: [AvailableModel] = anthropicModels + [
         // Claude models
         AvailableModel(id: "gemini-claude-opus-4-6-thinking", name: "gemini-claude-opus-4-6-thinking", provider: "anthropic", isDefault: false),
         AvailableModel(id: "gemini-claude-opus-4-5-thinking", name: "gemini-claude-opus-4-5-thinking", provider: "anthropic", isDefault: false),
