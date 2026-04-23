@@ -494,7 +494,7 @@ struct AgentConfigSheet: View {
                 (viewModel.availableModels + AvailableModel.codexAnthropicModels)
                     .filter {
                         let provider = $0.normalizedProvider
-                        guard provider == "openai" || provider == "anthropic" || provider == "glm" || provider == "openrouter" else {
+                        guard provider == "openai" || provider == "anthropic" || provider == "glm" || provider == "moonshot" || provider == "openrouter" else {
                             return false
                         }
                         if provider == "anthropic" && $0.name.hasPrefix("gemini-claude-") {
@@ -985,13 +985,17 @@ private struct ModelSlotRow: View {
     let availableModels: [AvailableModel]
     let onModelChange: (AvailableModel) -> Void
 
+    private var normalizedSelectedProvider: String {
+        AvailableModel.normalizeProvider(selectedProvider, modelName: selectedModel)
+    }
+
     private var effectiveSelection: String {
         if !selectedModel.isEmpty,
-           let selected = availableModels.first(where: { $0.name == selectedModel && $0.provider == selectedProvider }) {
+           let selected = availableModels.first(where: { $0.name == selectedModel && $0.normalizedProvider == normalizedSelectedProvider }) {
             return selected.selectionKey
         }
         if let defaultModel = AvailableModel.defaultModels[slot],
-           availableModels.contains(where: { $0.name == defaultModel.name && $0.provider == defaultModel.provider }) {
+           availableModels.contains(where: { $0.name == defaultModel.name && $0.normalizedProvider == defaultModel.normalizedProvider }) {
             return defaultModel.selectionKey
         }
         return availableModels.first?.selectionKey ?? ""
@@ -1012,10 +1016,10 @@ private struct ModelSlotRow: View {
                     onModelChange(model)
                 }
             )) {
-                let providers = Array(Dictionary(grouping: availableModels, by: \.provider).keys).sorted()
+                let providers = Array(Dictionary(grouping: availableModels, by: \.normalizedProvider).keys).sorted()
                 ForEach(providers, id: \.self) { provider in
-                    Section(header: Text(availableModels.first(where: { $0.provider == provider })?.providerDisplayName ?? provider.capitalized)) {
-                        ForEach(availableModels.filter { $0.provider == provider }) { model in
+                    Section(header: Text(availableModels.first(where: { $0.normalizedProvider == provider })?.providerDisplayName ?? provider.capitalized)) {
+                        ForEach(availableModels.filter { $0.normalizedProvider == provider }) { model in
                             Text(model.displayName).tag(model.selectionKey)
                         }
                     }
@@ -1025,7 +1029,7 @@ private struct ModelSlotRow: View {
             .frame(maxWidth: 280)
         }
         .onAppear {
-            if selectedModel.isEmpty || !availableModels.contains(where: { $0.name == selectedModel && $0.provider == selectedProvider }) {
+            if selectedModel.isEmpty || !availableModels.contains(where: { $0.name == selectedModel && $0.normalizedProvider == normalizedSelectedProvider }) {
                 if let model = availableModels.first(where: { $0.selectionKey == effectiveSelection }) {
                     onModelChange(model)
                 }
@@ -1043,12 +1047,17 @@ private struct SingleModelRow: View {
     let fallbackProvider: String
     let onModelChange: (AvailableModel) -> Void
 
+    private var normalizedSelectedProvider: String {
+        AvailableModel.normalizeProvider(selectedProvider, modelName: selectedModel)
+    }
+
     private var effectiveSelection: String {
         if !selectedModel.isEmpty,
-           let model = availableModels.first(where: { $0.name == selectedModel && $0.provider == selectedProvider }) {
+           let model = availableModels.first(where: { $0.name == selectedModel && $0.normalizedProvider == normalizedSelectedProvider }) {
             return model.selectionKey
         }
-        if let fallback = availableModels.first(where: { $0.name == fallbackModel && $0.provider == fallbackProvider }) {
+        let normalizedFallbackProvider = AvailableModel.normalizeProvider(fallbackProvider, modelName: fallbackModel)
+        if let fallback = availableModels.first(where: { $0.name == fallbackModel && $0.normalizedProvider == normalizedFallbackProvider }) {
             return fallback.selectionKey
         }
         return availableModels.first?.selectionKey ?? ""
@@ -1069,10 +1078,10 @@ private struct SingleModelRow: View {
                     onModelChange(model)
                 }
             )) {
-                let providers = Array(Dictionary(grouping: availableModels, by: \.provider).keys).sorted()
+                let providers = Array(Dictionary(grouping: availableModels, by: \.normalizedProvider).keys).sorted()
                 ForEach(providers, id: \.self) { provider in
-                    Section(header: Text(availableModels.first(where: { $0.provider == provider })?.providerDisplayName ?? provider.capitalized)) {
-                        ForEach(availableModels.filter { $0.provider == provider }) { model in
+                    Section(header: Text(availableModels.first(where: { $0.normalizedProvider == provider })?.providerDisplayName ?? provider.capitalized)) {
+                        ForEach(availableModels.filter { $0.normalizedProvider == provider }) { model in
                             Text(model.displayName).tag(model.selectionKey)
                         }
                     }
@@ -1082,7 +1091,7 @@ private struct SingleModelRow: View {
             .frame(maxWidth: 280)
         }
         .onAppear {
-            if selectedModel.isEmpty || !availableModels.contains(where: { $0.name == selectedModel && $0.provider == selectedProvider }) {
+            if selectedModel.isEmpty || !availableModels.contains(where: { $0.name == selectedModel && $0.normalizedProvider == normalizedSelectedProvider }) {
                 if let model = availableModels.first(where: { $0.selectionKey == effectiveSelection }) {
                     onModelChange(model)
                 }

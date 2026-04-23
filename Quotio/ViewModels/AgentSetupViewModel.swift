@@ -213,7 +213,7 @@ final class AgentSetupViewModel {
 
     func updateModelSlot(_ slot: ModelSlot, model: AvailableModel) {
         currentConfiguration?.modelSlots[slot] = model.name
-        currentConfiguration?.modelSlotProviders[slot] = model.provider
+        currentConfiguration?.modelSlotProviders[slot] = model.normalizedProvider
         // Clear effort if the new model doesn't support it
         if !ReasoningEffort.isSupported(for: model.name) {
             currentConfiguration?.modelSlotReasoningEfforts.removeValue(forKey: slot)

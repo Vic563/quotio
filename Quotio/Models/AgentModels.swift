@@ -337,11 +337,16 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
         }
 
         let lowerModelName = modelName?.lowercased() ?? ""
+        if isMoonshotModel(lowerModelName) {
+            return "moonshot"
+        }
         if lowerModelName.hasPrefix("gemini-claude-") || lowerModelName.hasPrefix("claude-") {
             return "anthropic"
         }
 
         switch lowerProvider {
+        case "moonshot", "moonshotai":
+            return "moonshot"
         case "claude":
             return "anthropic"
         default:
@@ -355,6 +360,9 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
         }
 
         let lowerModelName = modelName.lowercased()
+        if isMoonshotModel(lowerModelName) {
+            return "moonshot"
+        }
         if lowerModelName.contains("claude") || lowerModelName.contains("sonnet") || lowerModelName.contains("opus") || lowerModelName.contains("haiku") {
             return "anthropic"
         }
@@ -367,13 +375,17 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
         if lowerModelName.hasPrefix("gemini") {
             return "google"
         }
-        if lowerModelName.hasPrefix("kimi") || lowerModelName.hasPrefix("moonshot-") {
-            return "moonshot"
-        }
         if lowerModelName.contains("/") {
             return "openrouter"
         }
         return nil
+    }
+
+    private static func isMoonshotModel(_ lowerModelName: String) -> Bool {
+        lowerModelName.hasPrefix("kimi")
+            || lowerModelName.hasPrefix("moonshot-")
+            || lowerModelName.hasPrefix("moonshotai/")
+            || lowerModelName.contains("/kimi")
     }
 
     static let defaultModels: [ModelSlot: AvailableModel] = [
