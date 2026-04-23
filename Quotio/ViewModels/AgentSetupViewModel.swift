@@ -432,6 +432,7 @@ final class AgentSetupViewModel {
         var loadedFromRemote = false
 
         do {
+            await refreshOpenRouterCatalogForProxyIfNeeded(forceRefresh: forceRefresh)
             let fetchedModels = try await configurationService.fetchAvailableModels(config: config)
             let processedModels = await processModels(fetchedModels)
             self.availableModels = processedModels
@@ -451,6 +452,13 @@ final class AgentSetupViewModel {
 
         refreshVirtualModels()
         return loadedFromRemote
+    }
+
+    private func refreshOpenRouterCatalogForProxyIfNeeded(forceRefresh: Bool) async {
+        guard let proxyManager else { return }
+        let changed = await CustomProviderService.shared.refreshOpenRouterModelCatalogs(forceRefresh: forceRefresh)
+        guard changed else { return }
+        await proxyManager.syncCustomProvidersAndRestartIfRunning()
     }
 
     private func preferredProxyAPIKey() -> String? {
@@ -492,22 +500,40 @@ final class AgentSetupViewModel {
     private func loadCustomProviderModels() -> [AvailableModel] {
         let enabledProviders = CustomProviderService.shared.enabledProviders
         let glmProviders = enabledProviders.filter { $0.type == .glmCompatibility }
+        let openRouterProviders = enabledProviders.filter { OpenRouterProviderMarker.isOpenRouter($0) }
 
-        guard !glmProviders.isEmpty else { return [] }
+        guard !glmProviders.isEmpty || !openRouterProviders.isEmpty else { return [] }
 
         var models = glmProviders.flatMap { provider in
             provider.models.map {
                 AvailableModel(
-                    id: $0.name,
-                    name: $0.name,
+                    id: $0.effectiveAlias,
+                    name: $0.effectiveAlias,
                     provider: "glm",
                     isDefault: false
                 )
             }
         }
 
-        if models.isEmpty {
-            models = AvailableModel.glmModels
+        if models.isEmpty, !glmProviders.isEmpty {
+            models.append(contentsOf: AvailableModel.glmModels)
+        }
+
+        for provider in openRouterProviders {
+            let providerModels: [AvailableModel]
+            if provider.models.isEmpty {
+                providerModels = AvailableModel.openRouterModels
+            } else {
+                providerModels = provider.models.map {
+                    AvailableModel(
+                        id: $0.effectiveAlias,
+                        name: $0.effectiveAlias,
+                        provider: "openrouter",
+                        isDefault: false
+                    )
+                }
+            }
+            models.append(contentsOf: providerModels)
         }
 
         return models

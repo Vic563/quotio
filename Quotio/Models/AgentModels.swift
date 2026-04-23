@@ -286,6 +286,12 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
         if normalizedProvider == "glm" {
             return name.uppercased()
         }
+        if normalizedProvider == "openrouter" {
+            let slug = name.split(separator: "/", maxSplits: 1).last.map(String.init) ?? name
+            return slug.split(separator: "-")
+                .map { $0.capitalized }
+                .joined(separator: " ")
+        }
 
         return name.split(separator: "-")
             .map { $0.capitalized }
@@ -308,6 +314,8 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
             return "GLM"
         case "moonshot":
             return "Moonshot"
+        case "openrouter":
+            return "OpenRouter"
         case "github-copilot", "copilot":
             return "GitHub Copilot"
         case "fallback":
@@ -323,6 +331,9 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
         let lowerProvider = provider.lowercased()
         if lowerProvider == "github-copilot" || lowerProvider == "copilot" {
             return "github-copilot"
+        }
+        if lowerProvider == "openrouter" || lowerProvider.contains("openrouter") {
+            return "openrouter"
         }
 
         let lowerModelName = modelName?.lowercased() ?? ""
@@ -358,6 +369,9 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
         }
         if lowerModelName.hasPrefix("kimi") || lowerModelName.hasPrefix("moonshot-") {
             return "moonshot"
+        }
+        if lowerModelName.contains("/") {
+            return "openrouter"
         }
         return nil
     }
@@ -398,6 +412,31 @@ nonisolated struct AvailableModel: Identifiable, Codable, Hashable, Sendable {
         AvailableModel(id: "glm-5-turbo", name: "glm-5-turbo", provider: "glm", isDefault: false),
         AvailableModel(id: "glm-4.7", name: "glm-4.7", provider: "glm", isDefault: false),
         AvailableModel(id: "glm-4.5-air", name: "glm-4.5-air", provider: "glm", isDefault: false)
+    ]
+
+    // Routable OpenRouter defaults used for first-class OpenRouter accounts.
+    // CLIProxyAPI requires explicit OpenAI-compatible model mappings, so an
+    // empty OpenRouter model list cannot be used by Claude Code/Codex/Factory.
+    static let openRouterModels: [AvailableModel] = [
+        AvailableModel(id: "openrouter/auto", name: "openrouter/auto", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "openrouter/pareto-code", name: "openrouter/pareto-code", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "anthropic/claude-opus-4.7", name: "anthropic/claude-opus-4.7", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "anthropic/claude-opus-4.6-fast", name: "anthropic/claude-opus-4.6-fast", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "anthropic/claude-sonnet-4.5", name: "anthropic/claude-sonnet-4.5", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "moonshotai/kimi-k2.6", name: "moonshotai/kimi-k2.6", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "z-ai/glm-5.1", name: "z-ai/glm-5.1", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "z-ai/glm-5-turbo", name: "z-ai/glm-5-turbo", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "openai/gpt-5.4", name: "openai/gpt-5.4", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "openai/gpt-5.4-mini", name: "openai/gpt-5.4-mini", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "openai/gpt-5.4-nano", name: "openai/gpt-5.4-nano", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "openai/gpt-5.3-chat", name: "openai/gpt-5.3-chat", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "openai/gpt-5.2-codex", name: "openai/gpt-5.2-codex", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "openai/gpt-5.1-codex-max", name: "openai/gpt-5.1-codex-max", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "google/gemini-3.1-pro-preview", name: "google/gemini-3.1-pro-preview", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "google/gemini-3.1-flash-lite-preview", name: "google/gemini-3.1-flash-lite-preview", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "deepseek/deepseek-chat-v3.1", name: "deepseek/deepseek-chat-v3.1", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "qwen/qwen3.6-plus", name: "qwen/qwen3.6-plus", provider: "openrouter", isDefault: false),
+        AvailableModel(id: "x-ai/grok-4.20", name: "x-ai/grok-4.20", provider: "openrouter", isDefault: false)
     ]
 
     static let codexAnthropicModels: [AvailableModel] = [
@@ -513,7 +552,7 @@ nonisolated enum ReasoningEffort: String, CaseIterable, Codable, Identifiable, S
     /// Returns true when a model name should show the reasoning effort control.
     /// GPT family: names starting with gpt, o1, o3, or o4.
     static func isSupported(for modelName: String) -> Bool {
-        let lower = modelName.lowercased()
+        let lower = modelName.lowercased().split(separator: "/", maxSplits: 1).last.map(String.init) ?? modelName.lowercased()
         return lower.hasPrefix("gpt") || lower.hasPrefix("o1")
             || lower.hasPrefix("o3") || lower.hasPrefix("o4")
     }

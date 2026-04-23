@@ -32,6 +32,14 @@ nonisolated enum OpenRouterProviderMarker {
         provider.type == .openaiCompatibility &&
         provider.baseURL.lowercased() == baseURL
     }
+
+    static func normalizedAPIKey(_ key: String) -> String {
+        let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.lowercased().hasPrefix("bearer ") {
+            return String(trimmed.dropFirst("bearer ".count)).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return trimmed
+    }
 }
 
 // MARK: - Sheet
@@ -46,6 +54,7 @@ struct OpenRouterAPIKeySheet: View {
     @State private var apiKey: String = ""
     @State private var validationError: String?
     @State private var showValidationAlert = false
+    @State private var isSaving = false
 
     private var isEditing: Bool { provider != nil }
 
@@ -157,7 +166,7 @@ struct OpenRouterAPIKeySheet: View {
                         .foregroundStyle(.primary)
                     Spacer()
                 }
-                Text("Routed via the local proxy as an OpenAI-compatible upstream. Use any model from openrouter.ai with its full slug, e.g. anthropic/claude-sonnet-4.5 or openai/gpt-5.2.")
+                Text("Routed via the local proxy as an OpenAI-compatible upstream. Quotio fetches OpenRouter's full live model catalog and registers every returned slug with the local proxy.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -172,11 +181,19 @@ struct OpenRouterAPIKeySheet: View {
             Button("Cancel") { dismiss() }
                 .keyboardShortcut(.escape)
             Spacer()
-            Button(isEditing ? "Save Changes" : "Add OpenRouter") {
-                saveProvider()
+            Button {
+                Task { await saveProvider() }
+            } label: {
+                if isSaving {
+                    ProgressView()
+                        .controlSize(.small)
+                } else {
+                    Text(isEditing ? "Save Changes" : "Add OpenRouter")
+                }
             }
             .keyboardShortcut(.return, modifiers: .command)
             .buttonStyle(.borderedProminent)
+            .disabled(isSaving)
         }
         .padding(20)
     }
@@ -191,9 +208,9 @@ struct OpenRouterAPIKeySheet: View {
         }
     }
 
-    private func saveProvider() {
+    private func saveProvider() async {
         let trimmedName = name.trimmingCharacters(in: .whitespaces)
-        let trimmedKey = apiKey.trimmingCharacters(in: .whitespaces)
+        let trimmedKey = OpenRouterProviderMarker.normalizedAPIKey(apiKey)
 
         if trimmedName.isEmpty {
             validationError = "Account name is required."
@@ -206,13 +223,28 @@ struct OpenRouterAPIKeySheet: View {
             return
         }
 
-        let preservedModels: [ModelMapping]
-        if let provider, !provider.models.isEmpty {
-            preservedModels = provider.models
-        } else {
-            // Leave model list empty so the proxy passes-through any OpenRouter slug.
-            // Users can add specific aliases via the generic Custom Provider editor if desired.
-            preservedModels = []
+        isSaving = true
+        defer { isSaving = false }
+
+        // CLIProxyAPI requires explicit OpenAI-compatible model mappings. Fetch
+        // OpenRouter's live catalog so all current slugs are immediately routable.
+        let routableModels: [ModelMapping]
+        do {
+            routableModels = try await OpenRouterModelCatalogService.shared.fetchModelMappings(
+                apiKey: trimmedKey,
+                forceRefresh: true
+            )
+        } catch {
+            let cachedModels = OpenRouterModelCatalogCache.load()
+            if !cachedModels.isEmpty {
+                routableModels = cachedModels
+            } else if let provider, !provider.models.isEmpty {
+                routableModels = provider.models
+            } else {
+                routableModels = AvailableModel.openRouterModels.map {
+                    ModelMapping(name: $0.name, alias: $0.name)
+                }
+            }
         }
 
         // Attribution headers so requests show up as "Quotio" on OpenRouter's leaderboards.
@@ -225,7 +257,8 @@ struct OpenRouterAPIKeySheet: View {
             type: .openaiCompatibility,
             baseURL: OpenRouterProviderMarker.baseURL,
             apiKeys: [CustomAPIKeyEntry(apiKey: trimmedKey)],
-            models: preservedModels,
+            models: routableModels,
+            limitToSelectedModels: true,
             isEnabled: true,
             createdAt: provider?.createdAt ?? Date(),
             updatedAt: Date()
