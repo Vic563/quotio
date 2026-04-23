@@ -2,7 +2,7 @@
 
 [← Back to MODULE](MODULE.md) | [← Back to INDEX](../../INDEX.md)
 
-Symbol maps for 4 large files in this module.
+Symbol maps for 8 large files in this module.
 
 ## Quotio/QuotioApp.swift (818 lines)
 
@@ -39,6 +39,207 @@ Symbol maps for 4 large files in this module.
 | 716 | struct | RemoteStatusRow | (internal) |
 | 759 | struct | ProxyStatusRow | (internal) |
 | 790 | struct | QuotaRefreshStatusRow | (internal) |
+
+## Quotio/Services/AgentConfigurationService.swift (2148 lines)
+
+| Line | Kind | Name | Visibility |
+| ---- | ---- | ---- | ---------- |
+| 8 | class | AgentConfigurationService | (internal) |
+| 56 | fn | readConfiguration | (internal) |
+| 77 | fn | migrateProxyCredentialsIfNeeded | (internal) |
+| 111 | fn | listBackups | (internal) |
+| 140 | fn | restoreFromBackup | (internal) |
+| 158 | fn | readClaudeCodeConfig | (private) |
+| 220 | fn | readCodexConfig | (private) |
+| 280 | fn | readCopilotCLIConfig | (private) |
+| 349 | fn | readGeminiCLIConfig | (private) |
+| 391 | fn | readAmpConfig | (private) |
+| 418 | fn | readOpenCodeConfig | (private) |
+| 463 | fn | readFactoryDroidConfig | (private) |
+| 506 | fn | migrateClaudeCodeProxyCredentialIfNeeded | (private) |
+| 527 | fn | migrateCodexProxyCredentialIfNeeded | (private) |
+| 549 | fn | migrateAmpProxyCredentialIfNeeded | (private) |
+| 573 | fn | migrateOpenCodeProxyCredentialIfNeeded | (private) |
+| 598 | fn | migrateFactoryDroidProxyCredentialIfNeeded | (private) |
+| 632 | fn | extractTOMLValue | (private) |
+| 643 | fn | extractExportValue | (private) |
+| 655 | fn | extractCodexBaseURL | (private) |
+| 665 | fn | normalizeBaseURL | (private) |
+| 671 | fn | writeJSONWithBackupIfChanged | (private) |
+| 697 | fn | escapeTOMLString | (private) |
+| 725 | fn | buildManagedCodexTOML | (private) |
+| 745 | fn | parseTOMLSectionName | (private) |
+| 763 | fn | isCodexManagedTopLevelKey | (private) |
+| 772 | fn | splitManagedCodexConfig | (private) |
+| 780 | fn | extractManagedCodexBanner | (private) |
+| 789 | fn | filterExistingCodexLines | (private) |
+| 830 | fn | composeMergedCodexConfig | (private) |
+| 901 | fn | mergeCodexConfig | (private) |
+| 908 | fn | generateConfiguration | (internal) |
+| 950 | fn | generateDefaultConfiguration | (private) |
+| 968 | fn | generateClaudeCodeDefaultConfig | (private) |
+| 1058 | fn | generateCodexDefaultConfig | (private) |
+| 1105 | fn | generateGeminiCLIDefaultConfig | (private) |
+| 1133 | fn | generateCopilotCLIDefaultConfig | (private) |
+| 1164 | fn | generateAmpDefaultConfig | (private) |
+| 1210 | fn | generateOpenCodeDefaultConfig | (private) |
+| 1259 | fn | generateFactoryDroidDefaultConfig | (private) |
+| 1324 | fn | generateClaudeCodeConfig | (private) |
+| 1410 | fn | mergeClaudeConfig | (private) |
+| 1427 | fn | generateClaudeResult | (private) |
+| 1502 | fn | generateCodexConfig | (private) |
+| 1587 | fn | generateGeminiCLIConfig | (private) |
+| 1630 | fn | generateCopilotCLIConfig | (private) |
+| 1721 | fn | generateAmpConfig | (private) |
+| 1804 | fn | generateOpenCodeConfig | (private) |
+| 1896 | fn | buildOpenCodeModelConfig | (private) |
+| 1948 | fn | generateFactoryDroidConfig | (private) |
+| 2018 | fn | fetchAvailableModels | (internal) |
+| 2073 | fn | testConnection | (internal) |
+
+## Quotio/Services/AtomFeedUpdateService.swift (533 lines)
+
+| Line | Kind | Name | Visibility |
+| ---- | ---- | ---- | ---------- |
+| 14 | struct | AtomFeedEntry | (internal) |
+| 24 | enum | AtomFeedResult | (internal) |
+| 35 | struct | CachedFeedState | (internal) |
+| 44 | class | AtomFeedUpdateService | (internal) |
+| 111 | fn | checkForCLIProxyUpdate | (internal) |
+| 160 | fn | checkForQuotioUpdate | (internal) |
+| 205 | fn | forceCheckForCLIProxyUpdate | (internal) |
+| 216 | fn | startPolling | (internal) |
+| 238 | fn | stopPolling | (internal) |
+| 248 | fn | performPollingCheck | (private) |
+| 280 | fn | manualCheckForCLIProxyUpdate | (internal) |
+| 298 | fn | resetNotificationState | (internal) |
+| 304 | fn | fetchAtomFeed | (private) |
+| 350 | fn | parseAtomFeed | (private) |
+| 355 | fn | saveCacheState | (private) |
+| 368 | fn | loadCacheState | (private) |
+| 379 | fn | isNewerVersion | (private) |
+| 380 | fn | parseVersion | (internal) |
+| 418 | class | AtomFeedParser | (private) |
+| 438 | method | init | (internal) |
+| 443 | fn | parse | (internal) |
+| 450 | fn | parser | (internal) |
+| 466 | fn | parser | (internal) |
+| 470 | fn | parser | (internal) |
+| 515 | enum | AtomFeedError | (internal) |
+
+## Quotio/Services/ManagementAPIClient.swift (732 lines)
+
+| Line | Kind | Name | Visibility |
+| ---- | ---- | ---- | ---------- |
+| 8 | class | ManagementAPIClient | (internal) |
+| 45 | fn | custom | (internal) |
+| 55 | fn | log | (private) |
+| 60 | fn | incrementActiveRequests | (private) |
+| 67 | fn | decrementActiveRequests | (private) |
+| 78 | method | init | (internal) |
+| 101 | method | init | (internal) |
+| 126 | method | init | (internal) |
+| 139 | fn | invalidate | (internal) |
+| 144 | fn | makeRequest | (private) |
+| 206 | fn | fetchAuthFiles | (internal) |
+| 212 | fn | fetchAuthFileModels | (internal) |
+| 219 | fn | apiCall | (internal) |
+| 225 | fn | deleteAuthFile | (internal) |
+| 229 | fn | deleteAllAuthFiles | (internal) |
+| 233 | fn | setAuthFileDisabled | (internal) |
+| 242 | fn | fetchUsageStats | (internal) |
+| 247 | fn | getOAuthURL | (internal) |
+| 268 | fn | pollOAuthStatus | (internal) |
+| 273 | fn | fetchLogs | (internal) |
+| 282 | fn | clearLogs | (internal) |
+| 286 | fn | setDebug | (internal) |
+| 291 | fn | setRoutingStrategy | (internal) |
+| 307 | fn | getRoutingStrategy | (internal) |
+| 320 | fn | setQuotaExceededSwitchProject | (internal) |
+| 325 | fn | setQuotaExceededSwitchPreviewModel | (internal) |
+| 330 | fn | setRequestRetry | (internal) |
+| 339 | fn | fetchConfig | (internal) |
+| 345 | fn | getDebug | (internal) |
+| 352 | fn | getProxyURL | (internal) |
+| 359 | fn | setProxyURL | (internal) |
+| 365 | fn | deleteProxyURL | (internal) |
+| 370 | fn | getLoggingToFile | (internal) |
+| 377 | fn | setLoggingToFile | (internal) |
+| 383 | fn | getRequestLog | (internal) |
+| 390 | fn | setRequestLog | (internal) |
+| 396 | fn | getRequestRetry | (internal) |
+| 403 | fn | getMaxRetryInterval | (internal) |
+| 410 | fn | setMaxRetryInterval | (internal) |
+| 416 | fn | getQuotaExceededSwitchProject | (internal) |
+| 423 | fn | getQuotaExceededSwitchPreviewModel | (internal) |
+| 428 | fn | uploadVertexServiceAccount | (internal) |
+| 434 | fn | uploadVertexServiceAccount | (internal) |
+| 438 | fn | fetchAPIKeys | (internal) |
+| 444 | fn | addAPIKey | (internal) |
+| 451 | fn | replaceAPIKeys | (internal) |
+| 456 | fn | updateAPIKey | (internal) |
+| 461 | fn | deleteAPIKey | (internal) |
+| 466 | fn | deleteAPIKeyByIndex | (internal) |
+| 475 | fn | fetchLatestVersion | (internal) |
+| 482 | fn | checkProxyResponding | (internal) |
+| 504 | class | SessionDelegate | (private) |
+| 507 | method | init | (internal) |
+| 513 | fn | urlSession | (internal) |
+| 518 | fn | urlSession | (internal) |
+| 529 | fn | urlSession | (internal) |
+| 708 | method | init | (internal) |
+| 722 | fn | encode | (internal) |
+
+## Quotio/Services/StatusBarMenuBuilder.swift (1473 lines)
+
+| Line | Kind | Name | Visibility |
+| ---- | ---- | ---- | ---------- |
+| 18 | class | StatusBarMenuBuilder | (internal) |
+| 33 | method | init | (internal) |
+| 39 | fn | buildMenu | (internal) |
+| 120 | fn | isCLIInstalled | (private) |
+| 144 | fn | checkBinaryExists | (private) |
+| 173 | fn | resolveSelectedProvider | (private) |
+| 182 | fn | accountsForProvider | (private) |
+| 189 | fn | buildHeaderItem | (private) |
+| 196 | fn | buildNetworkInfoItem | (private) |
+| 223 | fn | buildAccountCardItem | (private) |
+| 254 | fn | buildAntigravitySubmenu | (private) |
+| 270 | fn | showSwitchConfirmation | (private) |
+| 299 | fn | buildEmptyStateItem | (private) |
+| 306 | fn | buildActionItems | (private) |
+| 330 | class | MenuActionHandler | (internal) |
+| 339 | fn | refresh | (internal) |
+| 345 | fn | openApp | (internal) |
+| 349 | fn | quit | (internal) |
+| 353 | fn | openMainWindow | (internal) |
+| 378 | struct | MenuHeaderView | (private) |
+| 403 | struct | MenuProviderSectionHeader | (private) |
+| 421 | struct | MenuProviderPickerView | (private) |
+| 456 | struct | ProviderFilterButton | (private) |
+| 488 | struct | ProviderIconMono | (private) |
+| 512 | struct | MenuNetworkInfoView | (private) |
+| 620 | fn | triggerCopyState | (private) |
+| 631 | fn | setCopied | (private) |
+| 642 | fn | copyButton | (private) |
+| 659 | struct | MenuAccountCardView | (private) |
+| 698 | fn | planConfig | (private) |
+| 930 | fn | formatLocalTime | (private) |
+| 949 | struct | ModelBadgeData | (private) |
+| 988 | struct | AntigravityDisplayGroup | (private) |
+| 995 | fn | menuDisplayPercent | (private) |
+| 999 | fn | menuStatusColor | (private) |
+| 1017 | struct | LowestBarLayout | (private) |
+| 1097 | struct | RingGridLayout | (private) |
+| 1141 | struct | CardGridLayout | (private) |
+| 1190 | struct | ModernProgressBar | (private) |
+| 1225 | struct | PercentageBadge | (private) |
+| 1261 | struct | MenuModelDetailView | (private) |
+| 1313 | struct | MenuEmptyStateView | (private) |
+| 1328 | struct | MenuViewMoreAccountsView | (private) |
+| 1376 | mod | extension AIProvider | (private) |
+| 1401 | struct | MenuActionsView | (private) |
+| 1439 | struct | MenuBarActionButton | (private) |
 
 ## Quotio/ViewModels/AgentSetupViewModel.swift (658 lines)
 

@@ -4,7 +4,7 @@
 
 ## Overview
 
-- **Lines:** 1203
+- **Lines:** 1212
 - **Language:** Swift
 - **Symbols:** 15
 - **Public symbols:** 0
@@ -24,8 +24,8 @@
 | 920 | struct | StorageOptionButton | (private) | `struct StorageOptionButton` |
 | 958 | struct | InfoRow | (private) | `struct InfoRow` |
 | 981 | struct | ModelSlotRow | (private) | `struct ModelSlotRow` |
-| 1037 | struct | SingleModelRow | (private) | `struct SingleModelRow` |
-| 1094 | struct | TestResultView | (private) | `struct TestResultView` |
-| 1121 | struct | FilePathRow | (private) | `struct FilePathRow` |
-| 1147 | struct | RawConfigView | (private) | `struct RawConfigView` |
+| 1041 | struct | SingleModelRow | (private) | `struct SingleModelRow` |
+| 1103 | struct | TestResultView | (private) | `struct TestResultView` |
+| 1130 | struct | FilePathRow | (private) | `struct FilePathRow` |
+| 1156 | struct | RawConfigView | (private) | `struct RawConfigView` |
 

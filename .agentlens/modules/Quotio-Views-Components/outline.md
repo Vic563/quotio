@@ -4,7 +4,7 @@
 
 Symbol maps for 2 large files in this module.
 
-## Quotio/Views/Components/AgentConfigSheet.swift (1203 lines)
+## Quotio/Views/Components/AgentConfigSheet.swift (1212 lines)
 
 | Line | Kind | Name | Visibility |
 | ---- | ---- | ---- | ---------- |
@@ -19,10 +19,10 @@ Symbol maps for 2 large files in this module.
 | 920 | struct | StorageOptionButton | (private) |
 | 958 | struct | InfoRow | (private) |
 | 981 | struct | ModelSlotRow | (private) |
-| 1037 | struct | SingleModelRow | (private) |
-| 1094 | struct | TestResultView | (private) |
-| 1121 | struct | FilePathRow | (private) |
-| 1147 | struct | RawConfigView | (private) |
+| 1041 | struct | SingleModelRow | (private) |
+| 1103 | struct | TestResultView | (private) |
+| 1130 | struct | FilePathRow | (private) |
+| 1156 | struct | RawConfigView | (private) |
 
 ## Quotio/Views/Components/CustomProviderSheet.swift (999 lines)
 

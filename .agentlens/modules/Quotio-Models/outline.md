@@ -4,19 +4,20 @@
 
 Symbol maps for 4 large files in this module.
 
-## Quotio/Models/AgentModels.swift (766 lines)
+## Quotio/Models/AgentModels.swift (778 lines)
 
 | Line | Kind | Name | Visibility |
 | ---- | ---- | ---- | ---------- |
 | 329 | fn | normalizeProvider | (internal) |
-| 351 | fn | inferredProvider | (internal) |
-| 554 | fn | isSupported | (internal) |
-| 561 | fn | extractFromModelName | (internal) |
-| 577 | fn | encoded | (internal) |
-| 595 | method | init | (internal) |
-| 614 | method | init | (internal) |
-| 682 | fn | success | (internal) |
-| 708 | fn | failure | (internal) |
+| 356 | fn | inferredProvider | (internal) |
+| 383 | fn | isMoonshotModel | (private) |
+| 566 | fn | isSupported | (internal) |
+| 573 | fn | extractFromModelName | (internal) |
+| 589 | fn | encoded | (internal) |
+| 607 | method | init | (internal) |
+| 626 | method | init | (internal) |
+| 694 | fn | success | (internal) |
+| 720 | fn | failure | (internal) |
 
 ## Quotio/Models/CustomProviderModels.swift (566 lines)
 
