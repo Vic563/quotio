@@ -4,20 +4,20 @@
 
 Symbol maps for 4 large files in this module.
 
-## Quotio/Models/AgentModels.swift (778 lines)
+## Quotio/Models/AgentModels.swift (783 lines)
 
 | Line | Kind | Name | Visibility |
 | ---- | ---- | ---- | ---------- |
-| 329 | fn | normalizeProvider | (internal) |
-| 356 | fn | inferredProvider | (internal) |
-| 383 | fn | isMoonshotModel | (private) |
-| 566 | fn | isSupported | (internal) |
-| 573 | fn | extractFromModelName | (internal) |
-| 589 | fn | encoded | (internal) |
-| 607 | method | init | (internal) |
-| 626 | method | init | (internal) |
-| 694 | fn | success | (internal) |
-| 720 | fn | failure | (internal) |
+| 331 | fn | normalizeProvider | (internal) |
+| 358 | fn | inferredProvider | (internal) |
+| 385 | fn | isMoonshotModel | (private) |
+| 571 | fn | isSupported | (internal) |
+| 578 | fn | extractFromModelName | (internal) |
+| 594 | fn | encoded | (internal) |
+| 612 | method | init | (internal) |
+| 631 | method | init | (internal) |
+| 699 | fn | success | (internal) |
+| 725 | fn | failure | (internal) |
 
 ## Quotio/Models/CustomProviderModels.swift (566 lines)
 
